@@ -1,4 +1,15 @@
 package com.metene.domain.entity;
 
-public enum Legislation {
+/**
+ * @author jmetenen
+ */
+public enum Legislation extends CookieBanner {
+    GDPR,
+    LGPD,
+    POPIA,
+    US_CCPA_CPRA,
+    US_CPA,
+    US_CTDPA,
+    US_UCPA,
+    US_VCDPA
 }
