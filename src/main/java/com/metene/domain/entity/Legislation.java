@@ -3,7 +3,7 @@ package com.metene.domain.entity;
 /**
  * @author jmetenen
  */
-public enum Legislation extends CookieBanner {
+public enum Legislation {
     GDPR,
     LGPD,
     POPIA,
