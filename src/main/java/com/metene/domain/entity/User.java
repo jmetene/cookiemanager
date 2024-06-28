@@ -28,20 +28,22 @@ public class User {
 
     @JsonIgnore
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     private List<Cookie> cookies = new ArrayList<>();
 
     @JsonIgnore
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     private List<CookieBanner> cookieBanners = new ArrayList<>();
 
     public void remove(Object object) {
-        if (object instanceof Cookie) removeCookie((Cookie) object);
-        if (object instanceof CookieBanner) removeCookieBanner((CookieBanner) object);
+        if (object instanceof Cookie cookie) removeCookie(cookie);
+        if (object instanceof CookieBanner banner) removeCookieBanner(banner);
     }
 
     public void add(Object object) {
-        if (object instanceof Cookie) addCookie((Cookie) object);
-        if (object instanceof CookieBanner) addCookieBanner((CookieBanner) object);
+        if (object instanceof Cookie cookie) addCookie(cookie);
+        if (object instanceof CookieBanner banner) addCookieBanner(banner);
     }
 
     private void addCookieBanner(CookieBanner banner) {
