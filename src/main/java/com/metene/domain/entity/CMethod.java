@@ -1,4 +1,4 @@
 package com.metene.domain.entity;
 
-public class Cookie {
+public enum CMethod {
 }
