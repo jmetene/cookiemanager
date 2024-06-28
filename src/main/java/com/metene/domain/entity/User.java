@@ -12,15 +12,16 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(uniqueConstraints = {@UniqueConstraint(columnNames = {"username", "email"})})
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private String uuid;
+    @Column(nullable = false, unique = true)
     private String username;
     private String password;
     private String firstName;
     private String lastName;
+    @Column(nullable = false, unique = true)
     private String email;
     private String company;
     @Enumerated(EnumType.STRING)
