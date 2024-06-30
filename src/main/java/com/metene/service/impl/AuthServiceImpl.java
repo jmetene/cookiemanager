@@ -16,7 +16,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -64,7 +63,8 @@ public class AuthServiceImpl implements AuthService {
         } catch (AuthenticationException e) {
             throw new AuthenticationServiceException("Error al autenticar el usuario");
         }
-        UserDetails userDetails = userRepository.findByUsername(request.getUsername()).orElseThrow();
+
+        User userDetails = userRepository.findByUsername(request.getUsername()).orElseThrow();
 
         String token = jwtService.generateToken(userDetails);
         return AuthResponse.builder().token(token).build();
