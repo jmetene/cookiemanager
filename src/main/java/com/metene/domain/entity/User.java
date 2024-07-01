@@ -46,7 +46,7 @@ public class User implements UserDetails, Serializable {
     @JsonIgnore
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
-    private transient List<CookieBanner> cookieBanners = new ArrayList<>();
+    private List<CookieBanner> cookieBanners = new ArrayList<>();
 
     public void remove(Object object) {
         if (object instanceof Cookie cookie) removeCookie(cookie);

@@ -3,6 +3,8 @@ package com.metene.controller;
 import com.metene.common.JWTUtils;
 import com.metene.service.CookieService;
 import com.metene.service.UserService;
+import com.metene.service.dto.CookieBannerRequest;
+import com.metene.service.dto.CookieBannerResponse;
 import com.metene.service.dto.CookieRequest;
 import com.metene.service.dto.CookieResponse;
 import jakarta.persistence.PersistenceException;
@@ -27,7 +29,6 @@ public class UserController {
     public String welcome() {
         return "Welcome to Cookie Manager";
     }
-
 
     @PostMapping(value = "/cookies")
     @PreAuthorize("hasRole('USER')")
@@ -83,5 +84,45 @@ public class UserController {
         }
 
         return ResponseEntity.ok("Cookie removed");
+    }
+
+    @PostMapping(value = "/banners")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<String> createCookieBanner(WebRequest request, @RequestBody CookieBannerRequest banner) {
+
+        if (banner == null)
+            return  ResponseEntity.badRequest().body("Error en la información del banner");
+
+        try {
+            userService.saveCookieBanner(JWTUtils.extractTokenFromRequest(request), banner);
+        } catch (PersistenceException e) {
+            return  ResponseEntity.internalServerError().build();
+        }
+        return ResponseEntity.ok("Banner creado correctamente");
+    }
+
+    @GetMapping(value = "/banners")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<List<CookieBannerResponse>> getAllBanners(WebRequest request) {
+        List<CookieBannerResponse> banners;
+        try {
+            banners = userService.getCookieBanners(JWTUtils.extractTokenFromRequest(request));
+        } catch (PersistenceException e) {
+            return  ResponseEntity.internalServerError().build();
+        }
+        return ResponseEntity.ok(banners);
+    }
+
+    @PutMapping(value = "/banners/{id}")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<String> updateCookieBanner(WebRequest request, @PathVariable Long id, @RequestBody CookieBannerRequest banner) {
+        try {
+            userService.updateCookieBanner(JWTUtils.extractTokenFromRequest(request), banner, id);
+        } catch (NoSuchFieldException e) {
+            return  ResponseEntity.notFound().build();
+        } catch (PersistenceException e) {
+            return  ResponseEntity.internalServerError().build();
+        }
+        return ResponseEntity.ok("Banner actualizado correctamente");
     }
 }
