@@ -8,4 +8,5 @@ import java.util.List;
 public interface UserService {
     void saveCookies(List<CookieRequest> cookies, String token);
     boolean updateUser(UserRequest userRequest, String token);
+    void deleteCookie(String token, String cookieName);
 }

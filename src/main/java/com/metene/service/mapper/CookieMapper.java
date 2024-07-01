@@ -3,6 +3,7 @@ package com.metene.service.mapper;
 import com.metene.domain.entity.COOKIEType;
 import com.metene.domain.entity.Cookie;
 import com.metene.service.dto.CookieRequest;
+import com.metene.service.dto.CookieResponse;
 import org.springframework.util.StringUtils;
 
 public class CookieMapper {
@@ -20,6 +21,16 @@ public class CookieMapper {
                 .sameSite(request.isSameSite())
                 .httpOnly(request.isHttpOnly())
                 .secure(request.isSecure())
+                .build();
+    }
+
+    public static CookieResponse toDto(Cookie cookie) {
+        return CookieResponse
+                .builder()
+                .name(cookie.getName())
+                .description(cookie.getDescription())
+                .domain(cookie.getDomain())
+                .type(String.valueOf(cookie.getType()))
                 .build();
     }
 

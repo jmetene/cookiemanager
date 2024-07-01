@@ -2,6 +2,7 @@ package com.metene.service.impl;
 
 import com.metene.domain.entity.Cookie;
 import com.metene.domain.entity.User;
+import com.metene.domain.repository.CookieRepository;
 import com.metene.domain.repository.UserRepository;
 import com.metene.service.JWTService;
 import com.metene.service.UserService;
@@ -20,6 +21,7 @@ public class UserServiceImpl implements UserService {
 
     private final JWTService jwtService;
     private final UserRepository userRepository;
+    private final CookieRepository cookieRepository;
 
     @Override
     public void saveCookies(List<CookieRequest> cookies, String token) {
@@ -37,14 +39,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public boolean updateUser(UserRequest userRequest, String token) {
-        boolean result = false;
-
-        String username = jwtService.getUsernameFromToken(token.substring(7));
-
-        if (userRepository.findByUsername(username).isEmpty()) return result;
-
-        User user = userRepository.findByUsername(username).orElse(new User());
-        if (user.getId() == null) return result;
+        User user = userRepository.findByUsername(getUserName(token)).orElseThrow();
 
         Integer id = user.getId();
         User userToUpdate = UserMapper.toEntity(userRequest);
@@ -52,5 +47,19 @@ public class UserServiceImpl implements UserService {
         userRepository.save(userToUpdate);
 
         return true;
+    }
+
+    @Override
+    public void deleteCookie(String token, String cookieName) {
+        String username = getUserName(token);
+        User user = userRepository.findByUsername(username).orElseThrow();
+        Cookie cookie = cookieRepository.findByNameAndUser(cookieName, username).orElseThrow();
+
+        user.remove(cookie);
+        userRepository.save(user);
+    }
+
+    private String getUserName(String token) {
+        return jwtService.getUsernameFromToken(token.substring(7));
     }
 }
