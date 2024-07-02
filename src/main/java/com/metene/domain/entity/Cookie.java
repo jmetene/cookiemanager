@@ -14,18 +14,22 @@ import java.io.Serializable;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
+@Table(name="COOKIE", uniqueConstraints = {@UniqueConstraint(columnNames = {"name"})})
 public class Cookie implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Column(nullable = false, unique = true)
     private String name;
     @Enumerated(EnumType.STRING)
     private COOKIEType type;
     private String description;
-    private String domain;
-    private boolean sameSite;
+    private String provider;
+    private String duration;
+    @Enumerated(EnumType.STRING)
+    private SameSiteType sameSite;
     private boolean httpOnly;
     private boolean secure;
 

@@ -18,21 +18,19 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "USUARIO")
+@Table(name = "USER", uniqueConstraints = {@UniqueConstraint(columnNames = {"username", "email"})})
 public class User implements UserDetails, Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     private String name;
-    @Column(nullable = false, unique = true)
     private String username;
     private String password;
     private String firstName;
     private String lastName;
-    @Column(nullable = false, unique = true)
     private String email;
     private String company;
     @Enumerated(EnumType.STRING)

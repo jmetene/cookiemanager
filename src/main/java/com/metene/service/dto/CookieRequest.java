@@ -13,8 +13,9 @@ public class CookieRequest {
     private String name;
     private String type;
     private String description;
-    private String domain;
-    private boolean sameSite;
+    private String provider;
+    private String duration;
+    private String sameSite;
     private boolean httpOnly;
     private boolean secure;
 }

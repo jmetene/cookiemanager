@@ -8,10 +8,7 @@ import com.metene.domain.repository.CookieRepository;
 import com.metene.domain.repository.UserRepository;
 import com.metene.service.JWTService;
 import com.metene.service.UserService;
-import com.metene.service.dto.CookieBannerRequest;
-import com.metene.service.dto.CookieBannerResponse;
-import com.metene.service.dto.CookieRequest;
-import com.metene.service.dto.UserRequest;
+import com.metene.service.dto.*;
 import com.metene.service.mapper.CookieBannerMapper;
 import com.metene.service.mapper.CookieMapper;
 import com.metene.service.mapper.UserMapper;
@@ -32,9 +29,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public void saveCookies(List<CookieRequest> cookies, String token) {
         String username = jwtService.getUsernameFromToken(token.substring(7));
-
         User user = userRepository.findByUsername(username).orElse(new User());
-
         List<Cookie> cookiesToSave =  cookies.stream().map(CookieMapper::toEntity).toList();
 
         for (Cookie cookie : cookiesToSave)
@@ -44,15 +39,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public boolean updateUser(UserRequest userRequest, String token) {
+    public void updateUser(UserRequest userRequest, String token) {
         User user = userRepository.findByUsername(getUserName(token)).orElseThrow();
 
         Integer id = user.getId();
         User userToUpdate = UserMapper.toEntity(userRequest);
         userToUpdate.setId(id);
         userRepository.save(userToUpdate);
-
-        return true;
     }
 
     @Override
@@ -93,6 +86,11 @@ public class UserServiceImpl implements UserService {
 
         user.add(cookieBannerToUpdate);
         userRepository.save(user);
+    }
+
+    @Override
+    public UserResponse getUser(String token) {
+        return UserMapper.toDTO(userRepository.findByUsername(getUserName(token)).orElseThrow());
     }
 
     private String getUserName(String token) {

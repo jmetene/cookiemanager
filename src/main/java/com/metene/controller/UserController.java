@@ -3,10 +3,7 @@ package com.metene.controller;
 import com.metene.common.JWTUtils;
 import com.metene.service.CookieService;
 import com.metene.service.UserService;
-import com.metene.service.dto.CookieBannerRequest;
-import com.metene.service.dto.CookieBannerResponse;
-import com.metene.service.dto.CookieRequest;
-import com.metene.service.dto.CookieResponse;
+import com.metene.service.dto.*;
 import jakarta.persistence.PersistenceException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -25,9 +22,33 @@ public class UserController {
     private final UserService userService;
     private final CookieService cookieService;
 
-    @GetMapping("/users/profile")
-    public String welcome() {
-        return "Welcome to Cookie Manager";
+    @GetMapping("/users/info")
+    public ResponseEntity<UserResponse> getUserInfo(WebRequest request) {
+        UserResponse user;
+        try {
+            user = userService.getUser(JWTUtils.extractTokenFromRequest(request));
+        } catch (NoSuchElementException e) {
+            return ResponseEntity.notFound().build();
+        } catch (PersistenceException e) {
+            return ResponseEntity.internalServerError().body(null);
+        }
+        return ResponseEntity.ok(user);
+    }
+
+    @PutMapping("/users")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<String> updateUserData(WebRequest request, @RequestBody UserRequest user) {
+        if (user == null) return ResponseEntity.badRequest().body("Error en los datos del usuario");
+
+        try {
+            userService.updateUser(user, JWTUtils.extractTokenFromRequest(request));
+        } catch (NoSuchElementException e) {
+            return ResponseEntity.notFound().build();
+        } catch (PersistenceException e) {
+            return ResponseEntity.internalServerError().body("Error en el servidor");
+        }
+
+        return ResponseEntity.ok("Usuario actualizado correctamente");
     }
 
     @PostMapping(value = "/cookies")
