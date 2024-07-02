@@ -5,6 +5,7 @@ import com.metene.domain.entity.User;
 import com.metene.domain.repository.UserRepository;
 import com.metene.service.AuthService;
 import com.metene.service.JWTService;
+import com.metene.service.TokenBlackList;
 import com.metene.service.dto.AuthResponse;
 import com.metene.service.dto.LoginRequest;
 import com.metene.service.dto.RegisterRequest;
@@ -15,7 +16,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -28,6 +31,7 @@ public class AuthServiceImpl implements AuthService {
     private final JWTService jwtService;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authManager;
+    private final TokenBlackList tokenBlackList;
 
 
     @Override
@@ -58,16 +62,26 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public AuthResponse login(LoginRequest request) {
+        Authentication authentication;
         try {
-            authManager.authenticate(new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
+            authentication = authManager.authenticate(new UsernamePasswordAuthenticationToken(request.getUsername(),
+                    request.getPassword()));
         } catch (AuthenticationException e) {
             throw new AuthenticationServiceException("Error al autenticar el usuario");
         }
 
+        SecurityContextHolder.getContext().setAuthentication(authentication);
         User userDetails = userRepository.findByUsername(request.getUsername()).orElseThrow();
 
         String token = jwtService.generateToken(userDetails);
         return AuthResponse.builder().token(token).build();
+    }
+
+    @Override
+    public String logout(String token) {
+        tokenBlackList.addToBlackList(token);
+        SecurityContextHolder.clearContext();
+        return "Logget out successfully";
     }
 
     private boolean emailExists(String email) {

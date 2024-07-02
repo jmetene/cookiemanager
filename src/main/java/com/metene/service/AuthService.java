@@ -7,4 +7,5 @@ import com.metene.service.dto.RegisterRequest;
 public interface AuthService {
     String register(RegisterRequest request);
     AuthResponse login(LoginRequest request);
+    String logout(String token);
 }

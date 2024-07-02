@@ -1,6 +1,7 @@
 package com.metene.confing;
 
 import com.metene.service.JWTService;
+import com.metene.service.TokenBlackList;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import jakarta.annotation.Nonnull;
@@ -8,6 +9,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -21,16 +23,14 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 
 @Component
+@RequiredArgsConstructor
 public class JWTAuthenticationFilter extends OncePerRequestFilter {
     private static  final String AUTH_HEADER_PREFIX = "Bearer ";
+    private static final String UNAUTHORIZED_MENSAJE = "{\"error\":\"Token has been revoke\"}";
 
     private final JWTService jwtService;
     private final UserDetailsService userDetailsService;
-
-    public JWTAuthenticationFilter(JWTService jwtService, UserDetailsService userDetailsService) {
-        this.jwtService = jwtService;
-        this.userDetailsService = userDetailsService;
-    }
+    private final TokenBlackList tokenBlackList;
 
     @Override
     protected void doFilterInternal(@Nonnull HttpServletRequest request, @Nonnull HttpServletResponse response,
@@ -43,7 +43,12 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
             return;
         }
-
+        if (tokenBlackList.isBlacklisted(token)) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setContentType("application/json");
+            response.getWriter().write(UNAUTHORIZED_MENSAJE);
+            return;
+        }
         try {
             username = jwtService.getUsernameFromToken(token);
 
@@ -61,7 +66,6 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
 
                     SecurityContextHolder.getContext().setAuthentication(authentication);
                 }
-
             }
 
             filterChain.doFilter(request, response);
@@ -69,7 +73,7 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
         } catch (JwtException e) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.setContentType("application/json");
-            response.getWriter().write("Token has been revoke");
+            response.getWriter().write(UNAUTHORIZED_MENSAJE);
         }
 
     }

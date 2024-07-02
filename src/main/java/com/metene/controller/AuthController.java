@@ -1,5 +1,6 @@
 package com.metene.controller;
 
+import com.metene.common.JWTUtils;
 import com.metene.service.AuthService;
 import com.metene.service.dto.AuthResponse;
 import com.metene.service.dto.LoginRequest;
@@ -7,10 +8,8 @@ import com.metene.service.dto.RegisterRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.request.WebRequest;
 
 @RestController
 @RequestMapping("/api")
@@ -26,5 +25,10 @@ public class AuthController {
     @PostMapping(value = "/auth/register")
     public ResponseEntity<String> register(@RequestBody RegisterRequest request) {
         return new ResponseEntity<>(authService.register(request), HttpStatus.CREATED);
+    }
+
+    @GetMapping(value = "/logout")
+    public ResponseEntity<String> logout(WebRequest request) {
+        return ResponseEntity.ok(authService.logout(JWTUtils.extractTokenFromRequest(request)));
     }
 }

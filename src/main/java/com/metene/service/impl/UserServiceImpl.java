@@ -94,6 +94,6 @@ public class UserServiceImpl implements UserService {
     }
 
     private String getUserName(String token) {
-        return jwtService.getUsernameFromToken(token.substring(7));
+        return jwtService.getUsernameFromToken(token);
     }
 }
