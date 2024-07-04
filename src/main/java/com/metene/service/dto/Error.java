@@ -19,6 +19,6 @@ public class Error {
     private String dateTime;
     @JsonProperty("description")
     private String description;
-    @JsonProperty("extendedInfo")
-    private List<String> extendedInfo;
+    @JsonProperty("violations")
+    private List<String> violations;
 }

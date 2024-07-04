@@ -9,6 +9,7 @@ import com.metene.service.TokenBlackList;
 import com.metene.service.dto.AuthResponse;
 import com.metene.service.dto.LoginRequest;
 import com.metene.service.dto.RegisterRequest;
+import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.PersistenceException;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -37,7 +38,7 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public String register(RegisterRequest request) {
         if (emailExists(request.getEmail())) {
-            throw new AuthenticationServiceException("Email already exists");
+            throw new EntityExistsException("Email already exists");
         }
         User user = User.builder()
                 .username(request.getUsername())
