@@ -3,8 +3,6 @@ package com.metene.service.impl;
 import com.metene.domain.entity.User;
 import com.metene.service.JWTService;
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -13,13 +11,15 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
+import java.time.Instant;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
 @Service
 public class JWTServiceImpl implements JWTService {
-    private static final Long SECOND_IN_A_DAY = 1440000L;
+    private static final Long  VALIDITY = TimeUnit.HOURS.toMillis(1);
 
     @Value("${jwt.secret.key}")
     private String secretKey;
@@ -52,8 +52,8 @@ public class JWTServiceImpl implements JWTService {
                 .claim("company", user.getCompany())
                 .claim("name", user.getName())
                 .subject(user.getUsername())
-                .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis() + SECOND_IN_A_DAY))
+                .issuedAt(Date.from(Instant.now()))
+                .expiration(Date.from(Instant.now().plusMillis(VALIDITY)))
                 .signWith(getSecretKey())
                 .compact();
     }
