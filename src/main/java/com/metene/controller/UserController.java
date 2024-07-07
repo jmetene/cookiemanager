@@ -148,4 +148,20 @@ public class UserController {
         }
         return ResponseEntity.ok("Banner actualizado correctamente");
     }
+
+    @GetMapping(value = "/banners/{id}")
+    @PreAuthorize("hasAuthority('USER')")
+    public ResponseEntity<CookieBannerResponse> getBannerDetails(WebRequest request, @PathVariable Long id) {
+        CookieBannerResponse response;
+        //1 Invocar el método correspondiente
+        try {
+            response = userService.getCookieBannerDetail(JWTUtils.extractTokenFromRequest(request), id);
+        } catch (NoSuchElementException e) {
+            return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
+        }
+        //2 Devolver el resultado
+        return ResponseEntity.ok(response);
+    }
 }

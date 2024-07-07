@@ -12,10 +12,12 @@ import com.metene.service.dto.*;
 import com.metene.service.mapper.CookieBannerMapper;
 import com.metene.service.mapper.CookieMapper;
 import com.metene.service.mapper.UserMapper;
+import jakarta.persistence.PersistenceException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @Service
 @RequiredArgsConstructor
@@ -91,6 +93,27 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserResponse getUser(String token) {
         return UserMapper.toDTO(userRepository.findByUsername(getUserName(token)).orElseThrow());
+    }
+
+    @Override
+    public CookieBannerResponse getCookieBannerDetail(String token, Long id) {
+        //1) Obtener el nombre del usuario
+        String username = getUserName(token);
+
+        CookieBanner banner;
+        try {
+            //2.1) Buscar el banner por el ID del banner y por el nombre del usuario
+            //2.2 Hay que crear un método en el CookieBannerRepository para obtener esta información
+            banner = cookieBannerRepository.findCookieBannerByIdAndUserName(username, id);
+            if (banner == null) throw new NoSuchElementException("Elemento no encontrado");
+        } catch (NoSuchElementException e) {
+            throw new NoSuchElementException(e);
+        } catch (Exception e) {
+            throw new PersistenceException(e);
+        }
+        //3 Convertir el CookieBanner a CookieBannerRespose
+        // y Devolver la info.
+        return CookieBannerMapper.toDto(banner);
     }
 
     private String getUserName(String token) {

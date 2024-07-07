@@ -12,4 +12,5 @@ public interface UserService {
     List<CookieBannerResponse> getCookieBanners(String token);
     void updateCookieBanner(String token, CookieBannerRequest banner, Long id) throws NoSuchFieldException;
     UserResponse getUser(String token);
+    CookieBannerResponse getCookieBannerDetail(String token, Long id);
 }
