@@ -6,7 +6,7 @@ import com.metene.service.common.ResponseErrorBuilder;
 import com.metene.service.dto.AuthResponse;
 import com.metene.service.dto.LoginRequest;
 import com.metene.service.dto.RegisterRequest;
-import com.metene.service.dto.ResponseHttpError;
+import com.metene.service.dto.HttpErrorResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -41,10 +41,10 @@ public class AuthController {
                     @Schema(implementation = AuthResponse.class))}),
             @ApiResponse(responseCode = "400", description = "Bad Request", content =
                     {@Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema =
-                    @Schema(implementation = ResponseHttpError.class))}),
+                    @Schema(implementation = HttpErrorResponse.class))}),
             @ApiResponse(responseCode = "500", description = "Internal server error", content =
                     {@Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema =
-                    @Schema(implementation = ResponseHttpError.class))})
+                    @Schema(implementation = HttpErrorResponse.class))})
     })
     @PostMapping(value = "/auth/login")
     public ResponseEntity<Object> login(@RequestBody LoginRequest request) {
@@ -66,13 +66,13 @@ public class AuthController {
             @ApiResponse(responseCode = "200", description = "OK"),
             @ApiResponse(responseCode = "400", description = "Bad Request", content =
                     {@Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema =
-                    @Schema(implementation = ResponseHttpError.class))}),
+                    @Schema(implementation = HttpErrorResponse.class))}),
             @ApiResponse(responseCode = "409", description = "Conflict", content =
                     {@Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema =
-                    @Schema(implementation = ResponseHttpError.class))}),
+                    @Schema(implementation = HttpErrorResponse.class))}),
             @ApiResponse(responseCode = "500", description = "Internal server error", content =
                     {@Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema =
-                    @Schema(implementation = ResponseHttpError.class))})
+                    @Schema(implementation = HttpErrorResponse.class))})
     })
     @PostMapping(value = "/auth/register")
     public ResponseEntity<Object> register(@RequestBody RegisterRequest request) {
@@ -98,10 +98,10 @@ public class AuthController {
                     @Schema(implementation = String.class))}),
             @ApiResponse(responseCode = "400", description = "Bad Request", content =
                     {@Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema =
-                    @Schema(implementation = ResponseHttpError.class))}),
+                    @Schema(implementation = HttpErrorResponse.class))}),
             @ApiResponse(responseCode = "500", description = "Internal server error", content =
                     {@Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema =
-                    @Schema(implementation = ResponseHttpError.class))})
+                    @Schema(implementation = HttpErrorResponse.class))})
     })
     @GetMapping(value = "/logout")
     public ResponseEntity<String> logout(WebRequest request) {
