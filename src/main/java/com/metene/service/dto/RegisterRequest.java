@@ -3,6 +3,7 @@ package com.metene.service.dto;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -18,6 +19,8 @@ public class RegisterRequest {
     private String username;
     @NotNull(message = "name cannot be null")
     @NotEmpty(message = "name cannot be an empty value")
+    @Pattern(regexp = "^(?=[\\w\\s]{3,40}$)(?!^[\\W_])(?!.*[\\W_]$)[\\w\\s]+$\n",
+            message = "El nombre debe tener entre 3 y 40 caracteres, no debe comenzar ni terminar con un carácter especial")
     private String name;
     @NotNull(message = "firstname cannot be null")
     @NotEmpty(message = "firstname cannot be an empty value")
