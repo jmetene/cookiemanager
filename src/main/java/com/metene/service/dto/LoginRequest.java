@@ -10,7 +10,7 @@ import lombok.*;
 @NoArgsConstructor
 @Builder
 public class LoginRequest {
-    @NotBlank(message = "Username cannot be empty or empty")
+    @NotBlank(message = "Username cannot be null or empty")
     private String username;
     @NotNull(message = "Password cannot be null")
     @Size(min=8, message = "Password length must be longer than 8")
