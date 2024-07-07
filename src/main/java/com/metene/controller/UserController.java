@@ -23,6 +23,7 @@ public class UserController {
     private final CookieService cookieService;
 
     @GetMapping("/users/info")
+    @PreAuthorize("hasAuthority('USER')")
     public ResponseEntity<UserResponse> getUserInfo(WebRequest request) {
         UserResponse user;
         try {
@@ -36,7 +37,7 @@ public class UserController {
     }
 
     @PutMapping("/users")
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasAuthority('USER')")
     public ResponseEntity<String> updateUserData(WebRequest request, @RequestBody UserRequest user) {
         if (user == null) return ResponseEntity.badRequest().body("Error en los datos del usuario");
 
@@ -52,7 +53,7 @@ public class UserController {
     }
 
     @PostMapping(value = "/cookies")
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasAuthority('USER')")
     public ResponseEntity<String> loadCookies(WebRequest request, @RequestBody List<CookieRequest> cookiesToLoad) {
 
         if (cookiesToLoad == null || cookiesToLoad.isEmpty())
@@ -67,7 +68,7 @@ public class UserController {
     }
 
     @GetMapping(value = "/cookies")
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasAuthority('USER')")
     public ResponseEntity<List<CookieResponse>> getAllCookies(WebRequest request) {
         List<CookieResponse> response;
 
@@ -81,7 +82,7 @@ public class UserController {
     }
 
     @GetMapping(value = "/cookies/{name}")
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasAuthority('USER')")
     public ResponseEntity<CookieResponse> showCookieDetails(WebRequest request, @PathVariable String name) {
         CookieResponse cookie;
         try {
@@ -95,6 +96,7 @@ public class UserController {
     }
 
     @DeleteMapping(value = "/cookies/{name}")
+    @PreAuthorize("hasAuthority('USER')")
     public ResponseEntity<String> deleteCookie(WebRequest request, @PathVariable String name) {
         try {
             userService.deleteCookie(JWTUtils.extractTokenFromRequest(request), name);
@@ -108,7 +110,7 @@ public class UserController {
     }
 
     @PostMapping(value = "/banners")
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasAuthority('USER')")
     public ResponseEntity<String> createCookieBanner(WebRequest request, @RequestBody CookieBannerRequest banner) {
 
         if (banner == null)
@@ -123,7 +125,7 @@ public class UserController {
     }
 
     @GetMapping(value = "/banners")
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasAuthority('USER')")
     public ResponseEntity<List<CookieBannerResponse>> getAllBanners(WebRequest request) {
         List<CookieBannerResponse> banners;
         try {
@@ -135,7 +137,7 @@ public class UserController {
     }
 
     @PutMapping(value = "/banners/{id}")
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasAuthority('USER')")
     public ResponseEntity<String> updateCookieBanner(WebRequest request, @PathVariable Long id, @RequestBody CookieBannerRequest banner) {
         try {
             userService.updateCookieBanner(JWTUtils.extractTokenFromRequest(request), banner, id);

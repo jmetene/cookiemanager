@@ -28,7 +28,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void saveCookies(List<CookieRequest> cookies, String token) {
-        String username = jwtService.getUsernameFromToken(token.substring(7));
+        String username = getUserName(token);
         User user = userRepository.findByUsername(username).orElse(new User());
         List<Cookie> cookiesToSave =  cookies.stream().map(CookieMapper::toEntity).toList();
 
