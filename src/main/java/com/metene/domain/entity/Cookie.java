@@ -1,5 +1,6 @@
 package com.metene.domain.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -8,6 +9,8 @@ import lombok.NoArgsConstructor;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @Builder
@@ -33,7 +36,20 @@ public class Cookie implements Serializable {
     private boolean httpOnly;
     private boolean secure;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+    @JsonIgnore
+    @OneToMany(mappedBy = "cookie", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<CookieStatistics> statisticsList = new ArrayList<>();
+
+    public void addStatistics(List<CookieStatistics> statistics) {
+        this.statisticsList.addAll(statistics);
+        statistics.forEach(cookieStatistics -> cookieStatistics.setCookie(this));
+    }
+
+    public void removeStatistics(CookieStatistics statistic) {
+        statisticsList.remove(statistic);
+    }
 }

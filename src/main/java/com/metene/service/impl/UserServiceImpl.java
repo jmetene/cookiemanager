@@ -2,6 +2,7 @@ package com.metene.service.impl;
 
 import com.metene.domain.entity.Cookie;
 import com.metene.domain.entity.CookieBanner;
+import com.metene.domain.entity.CookieStatistics;
 import com.metene.domain.entity.User;
 import com.metene.domain.repository.CookieBannerRepository;
 import com.metene.domain.repository.CookieRepository;
@@ -11,6 +12,7 @@ import com.metene.service.UserService;
 import com.metene.service.dto.*;
 import com.metene.service.mapper.CookieBannerMapper;
 import com.metene.service.mapper.CookieMapper;
+import com.metene.service.mapper.CookieStatisticMapper;
 import com.metene.service.mapper.UserMapper;
 import jakarta.persistence.PersistenceException;
 import lombok.RequiredArgsConstructor;
@@ -34,9 +36,12 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findByUsername(username).orElse(new User());
         List<Cookie> cookiesToSave =  cookies.stream().map(CookieMapper::toEntity).toList();
 
-        for (Cookie cookie : cookiesToSave)
+        for (int i = 0; i < cookiesToSave.size(); i++) {
+            Cookie cookie = cookiesToSave.get(i);
+            List<CookieStatistics> statistics = CookieStatisticMapper.toEntityList(cookies.get(i).getStatistics());
+            cookie.addStatistics(statistics);
             user.add(cookie);
-
+        }
         userRepository.save(user);
     }
 
@@ -97,13 +102,10 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public CookieBannerResponse getCookieBannerDetail(String token, Long id) {
-        //1) Obtener el nombre del usuario
         String username = getUserName(token);
 
         CookieBanner banner;
         try {
-            //2.1) Buscar el banner por el ID del banner y por el nombre del usuario
-            //2.2 Hay que crear un método en el CookieBannerRepository para obtener esta información
             banner = cookieBannerRepository.findCookieBannerByIdAndUserName(username, id);
             if (banner == null) throw new NoSuchElementException("Elemento no encontrado");
         } catch (NoSuchElementException e) {
@@ -111,8 +113,6 @@ public class UserServiceImpl implements UserService {
         } catch (Exception e) {
             throw new PersistenceException(e);
         }
-        //3 Convertir el CookieBanner a CookieBannerRespose
-        // y Devolver la info.
         return CookieBannerMapper.toDto(banner);
     }
 

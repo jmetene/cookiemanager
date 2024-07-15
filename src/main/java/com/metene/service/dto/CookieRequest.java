@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -18,4 +20,5 @@ public class CookieRequest {
     private String sameSite;
     private boolean httpOnly;
     private boolean secure;
+    List<Statistic> statistics;
 }
