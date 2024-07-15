@@ -3,10 +3,7 @@ package com.metene.controller;
 import com.metene.common.JWTUtils;
 import com.metene.service.AuthService;
 import com.metene.service.common.ResponseErrorBuilder;
-import com.metene.service.dto.AuthResponse;
-import com.metene.service.dto.LoginRequest;
-import com.metene.service.dto.RegisterRequest;
-import com.metene.service.dto.HttpErrorResponse;
+import com.metene.service.dto.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -18,9 +15,11 @@ import jakarta.validation.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.WebRequest;
 
+import java.util.NoSuchElementException;
 import java.util.Set;
 
 import static org.springframework.http.HttpStatus.*;
@@ -55,6 +54,8 @@ public class AuthController {
         AuthResponse response;
         try {
             response = authService.login(request);
+        }  catch (AuthenticationServiceException e) {
+            return ResponseEntity.badRequest().body(builder.buildBadRequestError(BAD_REQUEST, "Incorrect user or password"));
         } catch (Exception e) {
             return ResponseEntity.internalServerError().body(builder.buildInternalServerError(INTERNAL_SERVER_ERROR));
         }
@@ -106,5 +107,29 @@ public class AuthController {
     @GetMapping(value = "/logout")
     public ResponseEntity<String> logout(WebRequest request) {
         return ResponseEntity.ok(authService.logout(JWTUtils.extractTokenFromRequest(request)));
+    }
+
+    @PutMapping(value = "/auth/resetPassword")
+    public ResponseEntity<Object> changePassword(@RequestBody PasswordResetRequest passResetInfo) {
+        Set<ConstraintViolation<Object>> violations = validator.validate(passResetInfo);
+
+        if (!violations.isEmpty())
+            return ResponseEntity.badRequest().body(builder.buildBadRequestError(BAD_REQUEST, violations));
+
+        UserResponse response;
+
+        try {
+            response = authService.updatePassword(passResetInfo);
+        } catch (NoSuchElementException e) {
+            return ResponseEntity.badRequest().body(builder.buildBadRequestError(BAD_REQUEST, "User not found"));
+        } catch(Exception e) {
+            return ResponseEntity.internalServerError().body(builder.buildInternalServerError(INTERNAL_SERVER_ERROR));
+        }
+
+        if (response == null)
+            return ResponseEntity
+                    .badRequest().body(builder.buildBadRequestError(BAD_REQUEST, "The password already exists"));
+
+        return ResponseEntity.ok().build();
     }
 }

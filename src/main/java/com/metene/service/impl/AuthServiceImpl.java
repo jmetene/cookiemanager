@@ -6,9 +6,8 @@ import com.metene.domain.repository.UserRepository;
 import com.metene.service.AuthService;
 import com.metene.service.JWTService;
 import com.metene.service.TokenBlackList;
-import com.metene.service.dto.AuthResponse;
-import com.metene.service.dto.LoginRequest;
-import com.metene.service.dto.RegisterRequest;
+import com.metene.service.dto.*;
+import com.metene.service.mapper.UserMapper;
 import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.PersistenceException;
 import lombok.RequiredArgsConstructor;
@@ -83,6 +82,18 @@ public class AuthServiceImpl implements AuthService {
         tokenBlackList.addToBlackList(token);
         SecurityContextHolder.clearContext();
         return "Logget out successfully";
+    }
+
+    @Override
+    public UserResponse updatePassword(PasswordResetRequest passReset) {
+        User user = userRepository.findByEmail(passReset.getEmail()).orElseThrow();
+
+        // Si las contraseñas son iguales, no se efectúa el cambio
+        if (passwordEncoder.matches(passReset.getPassword(), user.getPassword())) return null;
+
+        user.setPassword(passwordEncoder.encode(passReset.getPassword()));
+
+        return UserMapper.toDTO(userRepository.saveAndFlush(user));
     }
 
     private boolean emailExists(String email) {
