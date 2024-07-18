@@ -3,7 +3,8 @@ package com.metene.service.impl;
 import com.metene.domain.entity.Cookie;
 import com.metene.domain.repository.CookieRepository;
 import com.metene.service.CookieService;
-import com.metene.service.JWTService;
+import com.metene.service.IDomainService;
+import com.metene.service.dto.CookieRequest;
 import com.metene.service.dto.CookieResponse;
 import com.metene.service.mapper.CookieMapper;
 import lombok.RequiredArgsConstructor;
@@ -17,28 +18,40 @@ import java.util.List;
 public class CookieServiceImpl implements CookieService {
 
     private final CookieRepository cookieRepository;
-    private final JWTService jwtService;
+    private final IDomainService domainService;
 
     @Override
-    public CookieResponse getCookie(String token, String cookieName) {
+    public CookieResponse getCookie(Long id, String cookieName) {
 
-        Cookie cookie = cookieRepository.findByNameAndUser(cookieName, getUserName(token)).orElseThrow();
+        Cookie cookie = cookieRepository.findByDomainAndName(id, cookieName).orElseThrow();
 
         return CookieMapper.toDto(cookie);
     }
 
     @Override
-    public List<CookieResponse> getAllCookies(String token) {
-        List<Cookie> cookies = cookieRepository.findByUser(getUserName(token)).orElseThrow();
+    public List<CookieResponse> getAllCookies(Long domain) {
+        List<Cookie> cookies = cookieRepository.findByDomain(domain).orElseThrow();
         return cookies.stream().map(CookieMapper::toDto).toList();
     }
 
     @Override
-    public boolean deleteCookie(String token, String cookieName) {
-        return false;
+    public void delete(Long domain, String cookieName) {
+        Cookie cookie = cookieRepository.findByDomainAndName(domain, cookieName).orElseThrow();
+        cookieRepository.delete(cookie);
     }
 
-    private String getUserName(String token) {
-        return jwtService.getUsernameFromToken(token);
+    @Override
+    public void update(Long domainId, CookieRequest request) {
+        Cookie cookie = cookieRepository.findByDomainAndName(domainId, request.getName()).orElseThrow();
+
+        Cookie cookieToUpdate = CookieMapper.toEntity(request);
+        cookieToUpdate.setId(cookie.getId());
+
+        cookieRepository.save(cookieToUpdate);
+    }
+
+    @Override
+    public void addCookie(Long domainId, CookieRequest request) {
+        domainService.addCookie(domainId, request);
     }
 }

@@ -33,45 +33,24 @@ public class User implements UserDetails, Serializable {
     private String lastName;
     private String email;
     private String company;
+    /// Basico, Profesional y Empresarial
+    private String suscriptionPlan;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "domain", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<Domain> domains = new ArrayList<>();
+
     @Enumerated(EnumType.STRING)
     private Role role;
 
-    @JsonIgnore
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    @Builder.Default
-    private List<Cookie> cookies = new ArrayList<>();
-
-    @JsonIgnore
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    @Builder.Default
-    private List<CookieBanner> cookieBanners = new ArrayList<>();
-
-    public void remove(Object object) {
-        if (object instanceof Cookie cookie) removeCookie(cookie);
-        if (object instanceof CookieBanner banner) removeCookieBanner(banner);
+    public void addDomain(Domain domain) {
+        domains.add(domain);
+        domain.setUser(this);
     }
 
-    public void add(Object object) {
-        if (object instanceof Cookie cookie) addCookie(cookie);
-        if (object instanceof CookieBanner banner) addCookieBanner(banner);
-    }
-
-    private void addCookieBanner(CookieBanner banner) {
-        cookieBanners.add(banner);
-        banner.setUser(this);
-    }
-
-    private void addCookie(Cookie cookie) {
-        cookies.add(cookie);
-        cookie.setUser(this);
-    }
-
-    private void removeCookie(Cookie cookie) {
-        cookies.remove(cookie);
-    }
-
-    private void removeCookieBanner(CookieBanner banner) {
-        cookieBanners.remove(banner);
+    public void removeDomain(Domain domain) {
+        domains.remove(domain);
     }
 
     @Override

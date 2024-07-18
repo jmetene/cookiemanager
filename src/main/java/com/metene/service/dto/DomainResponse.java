@@ -9,12 +9,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class UserResponse {
-    private String username;
+public class DomainResponse {
+    private Long id;
     private String name;
-    private String firstName;
-    private String lastName;
-    private String email;
-    private String company;
-    private String suscriptionPlan;
+    private int totalCookies;
+    private String lastCookieScan;
 }

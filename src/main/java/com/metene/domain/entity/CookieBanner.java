@@ -23,22 +23,16 @@ public class CookieBanner implements Serializable {
     private Long id;
     private String title;
     @Column(length = 1000)
-    private String description;
+    private String cookieDeclaration;
     private String companyLogo;
+    private String legislation;
+    private String legislationDesc;
+    private String cookiePolicy;
+    private String privacyPolicy;
     @Enumerated(EnumType.STRING)
-    private Legislation legislation;
-    private String legislationDescription;
-    @Enumerated(EnumType.STRING)
-    private ComplienceMethod method;
-    @Enumerated(EnumType.STRING)
-    private ComplienceType type;
-    @Enumerated(EnumType.STRING)
-    private Visitor territoryForVisitor;
-    @Column(length = 1000)
-    private String style;
+    private ConsentType consentType;
     private String lang;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    @OneToOne(mappedBy = "banner")
+    private Domain domain;
 }

@@ -13,14 +13,13 @@ public class CookieBannerMapper {
         return CookieBanner
                 .builder()
                 .title(banner.getTitle())
-                .description(banner.getDescription())
+                .cookieDeclaration(banner.getCookieDeclaration())
                 .companyLogo(banner.getLogo())
-                .legislation(Legislation.valueOf(banner.getLegislation()))
-                .legislationDescription(banner.getLegislationDescription())
-                .method(ComplienceMethod.valueOf(banner.getComplienceMethod()))
-                .type(ComplienceType.valueOf(banner.getComplienceType()))
-                .territoryForVisitor(Visitor.valueOf(banner.getVisitorTerritory()))
-                .style(banner.getStyle())
+                .legislation(banner.getLegislation())
+                .legislationDesc(banner.getLegislationDescription())
+                .consentType(ConsentType.valueOf(banner.getConsentType()))
+                .cookiePolicy(banner.getCookiePolicy())
+                .privacyPolicy(banner.getPrivacyPolicy())
                 .lang(banner.getLang())
                 .build();
     }
@@ -29,10 +28,13 @@ public class CookieBannerMapper {
         return CookieBannerResponse
                 .builder()
                 .title(banner.getTitle())
-                .description(banner.getDescription())
+                .cookieDeclaration(banner.getCookieDeclaration())
                 .logo(banner.getCompanyLogo())
-                .legislation(String.valueOf(banner.getLegislation()))
-                .legislationDescription(banner.getLegislationDescription())
+                .legislation(banner.getLegislation())
+                .legislationDescription(banner.getLegislationDesc())
+                .cookiePolicy(banner.getCookiePolicy())
+                .privacyPolicy(banner.getPrivacyPolicy())
+                .consentType(String.valueOf(banner.getConsentType()))
                 .lang(banner.getLang())
                 .build();
     }

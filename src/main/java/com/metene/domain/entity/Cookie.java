@@ -17,14 +17,13 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name="COOKIE", uniqueConstraints = {@UniqueConstraint(columnNames = {"name"})})
+@Table(name="COOKIE")
 public class Cookie implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(nullable = false, unique = true)
     private String name;
     @Enumerated(EnumType.STRING)
     private COOKIEType type;
@@ -37,8 +36,9 @@ public class Cookie implements Serializable {
     private boolean secure;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    @JoinColumn(name = "domain_id", nullable = false)
+    private Domain domain;
+
     @JsonIgnore
     @OneToMany(mappedBy = "cookie", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default

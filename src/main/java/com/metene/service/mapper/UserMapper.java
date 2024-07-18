@@ -19,6 +19,7 @@ public class UserMapper {
                 .username(user.getUsername())
                 .email(user.getEmail())
                 .company(user.getCompany())
+                .suscriptionPlan(user.getSuscriptionPlan())
                 .build();
     }
 
@@ -31,6 +32,7 @@ public class UserMapper {
                 .lastName(dto.getLastName())
                 .username(dto.getUsername())
                 .company(dto.getCompany())
+                .suscriptionPlan(dto.getSuscriptionPlan())
                 .build();
     }
 }

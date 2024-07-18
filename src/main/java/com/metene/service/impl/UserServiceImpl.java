@@ -32,8 +32,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void saveCookies(List<CookieRequest> cookies, String token) {
-        String username = getUserName(token);
-        User user = userRepository.findByUsername(username).orElse(new User());
+        User user = userRepository.findByUsername(getUserName(token)).orElse(new User());
         List<Cookie> cookiesToSave =  cookies.stream().map(CookieMapper::toEntity).toList();
 
         for (int i = 0; i < cookiesToSave.size(); i++) {
