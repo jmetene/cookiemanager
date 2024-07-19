@@ -86,7 +86,7 @@ public class DomainController {
         return ResponseEntity.ok("Domain successfully created");
     }
 
-    @PostMapping(value = "/domain/{id}")
+    @PostMapping(value = "/domain/{id}/loadCookies")
     @PreAuthorize("hasAuthority('USER')")
     public ResponseEntity<String> cargarCookies(@PathVariable Long id, @RequestBody List<CookieRequest> cookies) {
 
@@ -101,7 +101,7 @@ public class DomainController {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping(value = "/domain/{id}")
+    @PostMapping(value = "/domain/{id}/banner")
     @PreAuthorize("hasAuthority('USER')")
     public ResponseEntity<String> createCookieBanner(@PathVariable Long id, @RequestBody CookieBannerRequest banner) {
 

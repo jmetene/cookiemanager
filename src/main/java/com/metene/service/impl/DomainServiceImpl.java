@@ -19,7 +19,6 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -42,9 +41,8 @@ public class DomainServiceImpl implements IDomainService {
 
     @Override
     public DomainResponse getDetails(Long id) {
-        Domain domain = domainRepository.getReferenceById(id);
+        Domain domain = domainRepository.findById(id).orElseThrow();
 
-        if (Objects.isNull(domain)) throw new NoSuchElementException();
         return DomainMapper.toDto(domain);
     }
 
@@ -72,11 +70,11 @@ public class DomainServiceImpl implements IDomainService {
 
     @Override
     public void addCookies(Long id, List<CookieRequest> cookies) {
-        Domain domain = domainRepository.getReferenceById(id);
+        Domain domain = domainRepository.findById(id).orElseThrow();
 
-        if (Objects.isNull(domain)) throw new NoSuchElementException();
         List<Cookie> cookiesToSave =  cookies.stream().map(CookieMapper::toEntity).toList();
 
+        // Actualizamos la fecha de sincronización de las cookies
         domain.setLastCookieScan(LocalDateTime.now());
         domain.addAllCookies(cookiesToSave);
         domainRepository.save(domain);
@@ -84,9 +82,7 @@ public class DomainServiceImpl implements IDomainService {
 
     @Override
     public void addBanner(Long id, CookieBannerRequest request) {
-        Domain domain = domainRepository.getReferenceById(id);
-
-        if (Objects.isNull(domain)) throw new NoSuchElementException();
+        Domain domain = domainRepository.findById(id).orElseThrow();
 
         domain.setBanner(CookieBannerMapper.toEntity(request));
         domainRepository.save(domain);
@@ -96,6 +92,8 @@ public class DomainServiceImpl implements IDomainService {
     public void addCookie(Long id, CookieRequest request) {
         Domain domain = domainRepository.getReferenceById(id);
 
+        // Actualizamos la fecha de la última sincronización de cookies
+        domain.setLastCookieScan(LocalDateTime.now());
         domain.addCookie(CookieMapper.toEntity(request));
         domainRepository.save(domain);
     }

@@ -7,6 +7,6 @@ import org.springframework.data.jpa.repository.Query;
 import java.util.Optional;
 
 public interface CookieBannerRepository extends JpaRepository<CookieBanner, Long> {
-    @Query("SELECT banner FROM CookieBanner banner WHERE banner.domain.id =? 1")
+    @Query("SELECT banner FROM CookieBanner banner WHERE banner.domain.id = ?1")
     Optional<CookieBanner> getByDomain(Long domain);
 }

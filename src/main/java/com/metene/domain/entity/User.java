@@ -37,7 +37,7 @@ public class User implements UserDetails, Serializable {
     private String suscriptionPlan;
 
     @JsonIgnore
-    @OneToMany(mappedBy = "domain", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<Domain> domains = new ArrayList<>();
 

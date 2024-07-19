@@ -10,7 +10,6 @@ import lombok.NoArgsConstructor;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 @Data
@@ -42,14 +41,13 @@ public class Domain implements Serializable {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-
     public void addCookie(Cookie cookie) {
         cookies.add(cookie);
         cookie.setDomain(this);
     }
 
     public void addAllCookies(List<Cookie> cookies) {
-        cookies.addAll(cookies);
+        this.cookies.addAll(cookies);
         cookies.forEach(cookie -> cookie.setDomain(this));
     }
 
