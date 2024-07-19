@@ -18,7 +18,7 @@ import java.util.List;
 @Builder
 @Entity
 public class Domain implements Serializable {
-    /// Identificado único del dominio
+    /// Identificador único del dominio
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

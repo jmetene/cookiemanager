@@ -1,7 +1,9 @@
 package com.metene.service.impl;
 
 import com.metene.domain.entity.Cookie;
+import com.metene.domain.entity.Domain;
 import com.metene.domain.repository.CookieRepository;
+import com.metene.domain.repository.DomainRepository;
 import com.metene.service.CookieService;
 import com.metene.service.IDomainService;
 import com.metene.service.dto.CookieRequest;
@@ -18,6 +20,7 @@ import java.util.List;
 public class CookieServiceImpl implements CookieService {
 
     private final CookieRepository cookieRepository;
+    private final DomainRepository domainRepository;
     private final IDomainService domainService;
 
     @Override
@@ -37,7 +40,10 @@ public class CookieServiceImpl implements CookieService {
     @Override
     public void delete(Long domain, String cookieName) {
         Cookie cookie = cookieRepository.findByDomainAndName(domain, cookieName).orElseThrow();
-        cookieRepository.delete(cookie);
+        Domain domainToUpdate = cookie.getDomain();
+
+        domainToUpdate.removeCookie(cookie);
+        domainRepository.save(domainToUpdate);
     }
 
     @Override
