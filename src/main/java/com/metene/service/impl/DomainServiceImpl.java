@@ -18,7 +18,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 @Service
 @RequiredArgsConstructor
@@ -34,9 +33,8 @@ public class DomainServiceImpl implements IDomainService {
 
         Domain domain = new Domain();
         domain.setName(name);
-        domain.setUser(user);
-
-        domainRepository.save(domain);
+        user.addDomain(domain);
+        userRepository.save(user);
     }
 
     @Override
@@ -55,8 +53,11 @@ public class DomainServiceImpl implements IDomainService {
 
     @Override
     public void delete(Long id) {
-        if (!domainRepository.existsById(id)) throw new NoSuchElementException();
-        domainRepository.deleteById(id);
+        Domain domain = domainRepository.findById(id).orElseThrow();
+
+        User user = domain.getUser();
+        user.removeDomain(domain);
+        userRepository.save(user);
     }
 
     @Override
