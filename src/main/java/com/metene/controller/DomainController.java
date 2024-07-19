@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.WebRequest;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Objects;
 
 @RestController
@@ -40,6 +41,8 @@ public class DomainController {
         DomainResponse domain;
         try {
             domain = domainService.getDetails(id);
+        } catch (NoSuchElementException e) {
+            return  ResponseEntity.notFound().build();
         } catch (PersistenceException e) {
             return  ResponseEntity.internalServerError().build();
         }
@@ -49,44 +52,46 @@ public class DomainController {
     @PostMapping(value = "/domain")
     @PreAuthorize("hasAuthority('USER')")
     public ResponseEntity<String> crearDominio(WebRequest request, @RequestBody DomainRequest domain) {
-        if (Objects.isNull(domain) || domain.getName().isEmpty())
+        if (Objects.isNull(domain) || domain.getNombre().isEmpty())
             return  ResponseEntity.badRequest().body("Error en los parámetros de entrada");
 
         try {
-            domainService.create(domain.getName(), JWTUtils.extractTokenFromRequest(request));
-        } catch (PersistenceException e) {
-            return  ResponseEntity.internalServerError().build();
-        }
-        return ResponseEntity.ok("Domain successfully created");
-    }
-
-    @DeleteMapping(value = "/domain/{id}")
-    @PreAuthorize("hasAuthority('USER')")
-    public ResponseEntity<String> crearDominio(@PathVariable Long id) {
-
-        try {
-            domainService.delete(id);
+            domainService.create(domain, JWTUtils.extractTokenFromRequest(request));
         } catch (PersistenceException e) {
             return  ResponseEntity.internalServerError().build();
         }
         return ResponseEntity.ok().build();
     }
 
-    @PutMapping(value = "/domain")
+    @DeleteMapping(value = "/domain/{id}")
     @PreAuthorize("hasAuthority('USER')")
-    public ResponseEntity<String> actualizarDominio(@RequestBody DomainRequest request) {
-        if (Objects.isNull(request) || request.getName().isEmpty())
-            return  ResponseEntity.badRequest().body("El los parámetros de entrada");
+    public ResponseEntity<String> borrarDominio(@PathVariable Long id) {
 
         try {
-            domainService.update(request.getId(), request.getName());
+            domainService.delete(id);
+        } catch (NoSuchElementException e) {
+            return  ResponseEntity.notFound().build();
         } catch (PersistenceException e) {
             return  ResponseEntity.internalServerError().build();
         }
-        return ResponseEntity.ok("Domain successfully created");
+        return ResponseEntity.ok().build();
     }
 
-    @PostMapping(value = "/domain/{id}/loadCookies")
+    @PutMapping(value = "/domain/{id}")
+    @PreAuthorize("hasAuthority('USER')")
+    public ResponseEntity<String> actualizarDominio(@PathVariable Long id, @RequestBody DomainRequest domain) {
+        if (Objects.isNull(domain) || domain.getNombre().isEmpty())
+            return  ResponseEntity.badRequest().body("El los parámetros de entrada");
+
+        try {
+            domainService.update(id, domain);
+        } catch (PersistenceException e) {
+            return  ResponseEntity.internalServerError().build();
+        }
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping(value = "/domain/{id}/cookies")
     @PreAuthorize("hasAuthority('USER')")
     public ResponseEntity<String> cargarCookies(@PathVariable Long id, @RequestBody List<CookieRequest> cookies) {
 

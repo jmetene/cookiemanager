@@ -11,7 +11,14 @@ import lombok.NoArgsConstructor;
 @Builder
 public class DomainResponse {
     private Long id;
-    private String name;
+    private String nombre;
+    private String descripcion;
+    private String estado;
+    private String propietario;
+    private String contactoEmail;
+    private String paisOrigen;
     private int totalCookies;
     private String lastCookieScan;
+    private String fechaCreacion;
+    private String fechaModificacion;
 }

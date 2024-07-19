@@ -6,6 +6,10 @@ import lombok.Data;
 @Data
 @Builder
 public class DomainRequest {
-    private Long id;
-    private String name;
+    private String nombre;
+    private String descripcion;
+    private String estado;
+    private String propietario;
+    private String contactoEmail;
+    private String paisOrigen;
 }

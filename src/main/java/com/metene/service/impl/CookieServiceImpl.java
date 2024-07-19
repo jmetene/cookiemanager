@@ -8,7 +8,9 @@ import com.metene.service.CookieService;
 import com.metene.service.IDomainService;
 import com.metene.service.dto.CookieRequest;
 import com.metene.service.dto.CookieResponse;
+import com.metene.service.dto.Statistic;
 import com.metene.service.mapper.CookieMapper;
+import com.metene.service.mapper.CookieStatisticMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -47,17 +49,27 @@ public class CookieServiceImpl implements CookieService {
     }
 
     @Override
-    public void update(Long domainId, CookieRequest request) {
-        Cookie cookie = cookieRepository.findByDomainAndName(domainId, request.getName()).orElseThrow();
+    public void update(Long domainId, String name, CookieRequest request) {
+        Cookie currentCookie = cookieRepository.findByDomainAndName(domainId, name).orElseThrow();
 
         Cookie cookieToUpdate = CookieMapper.toEntity(request);
-        cookieToUpdate.setId(cookie.getId());
+        cookieToUpdate.setDomain(currentCookie.getDomain());
+        cookieToUpdate.setId(currentCookie.getId());
 
-        cookieRepository.save(cookieToUpdate);
+       cookieRepository.save(cookieToUpdate);
     }
 
     @Override
     public void addCookie(Long domainId, CookieRequest request) {
         domainService.addCookie(domainId, request);
+    }
+
+    @Override
+    public void cargarEstadisticas(Long domainId, String name, List<Statistic> statistics) {
+        Cookie currentCookie = cookieRepository.findByDomainAndName(domainId, name).orElseThrow();
+
+        currentCookie.addStatistics(CookieStatisticMapper.toEntityList(statistics));
+
+        cookieRepository.save(currentCookie);
     }
 }

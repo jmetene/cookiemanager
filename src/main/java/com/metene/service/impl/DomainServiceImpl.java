@@ -9,12 +9,14 @@ import com.metene.service.IDomainService;
 import com.metene.service.JWTService;
 import com.metene.service.dto.CookieBannerRequest;
 import com.metene.service.dto.CookieRequest;
+import com.metene.service.dto.DomainRequest;
 import com.metene.service.dto.DomainResponse;
 import com.metene.service.mapper.CookieBannerMapper;
 import com.metene.service.mapper.CookieMapper;
 import com.metene.service.mapper.DomainMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -23,17 +25,16 @@ import java.util.List;
 @RequiredArgsConstructor
 public class DomainServiceImpl implements IDomainService {
 
+    private static final String ACTIVO = "Activo";
     private final UserRepository userRepository;
     private final DomainRepository domainRepository;
     private final JWTService jwtService;
 
     @Override
-    public void create(String name, String token) {
+    public void create(DomainRequest request, String token) {
         User user = userRepository.findByUsername(jwtService.getUsernameFromToken(token)).orElseThrow();
 
-        Domain domain = new Domain();
-        domain.setName(name);
-        user.addDomain(domain);
+        user.addDomain(DomainMapper.toEntity(request));
         userRepository.save(user);
     }
 
@@ -61,10 +62,13 @@ public class DomainServiceImpl implements IDomainService {
     }
 
     @Override
-    public void update(Long id, String name) {
-        Domain domainToUpdate = domainRepository.findById(id).orElseThrow();
-        domainToUpdate.setName(name);
-        domainToUpdate.setId(id);
+    public void update(Long id, DomainRequest data) {
+        Domain currentDomain = domainRepository.findById(id).orElseThrow();
+
+        Domain domainToUpdate = DomainMapper.toEntity(data);
+        domainToUpdate.setFechaCreacion(currentDomain.getFechaCreacion());
+        domainToUpdate.setId(currentDomain.getId());
+        domainToUpdate.setUser(currentDomain.getUser());
 
         domainRepository.save(domainToUpdate);
     }
@@ -72,6 +76,9 @@ public class DomainServiceImpl implements IDomainService {
     @Override
     public void addCookies(Long id, List<CookieRequest> cookies) {
         Domain domain = domainRepository.findById(id).orElseThrow();
+
+        // Solo se pueden añadir las cookies si el dominio está activo
+        if (!domain.getEstado().equals(ACTIVO)) return;
 
         List<Cookie> cookiesToSave =  cookies.stream().map(CookieMapper::toEntity).toList();
 

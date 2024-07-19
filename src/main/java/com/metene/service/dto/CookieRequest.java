@@ -20,5 +20,4 @@ public class CookieRequest {
     private String sameSite;
     private boolean httpOnly;
     private boolean secure;
-    List<Statistic> statistics;
 }

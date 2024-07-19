@@ -1,13 +1,15 @@
 package com.metene.service.mapper;
 
 import com.metene.domain.entity.Domain;
+import com.metene.service.dto.DomainRequest;
 import com.metene.service.dto.DomainResponse;
 
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 
 public class DomainMapper {
-    private static final int NO_COOKIES = 0;
+    private static final int ZERO_COOKIES = 0;
     private static final String PATTERN = "yyyy-MM-dd HH:mm:ss";
 
     private DomainMapper() {
@@ -18,9 +20,31 @@ public class DomainMapper {
         return DomainResponse
                 .builder()
                 .id(domain.getId())
-                .name(domain.getName())
-                .totalCookies(domain.getCookies().isEmpty() ? NO_COOKIES : domain.getCookies().size())
-                .lastCookieScan(domain.getLastCookieScan().format(getFormatter()))
+                .nombre(domain.getNombre())
+                .descripcion(domain.getDescripcion())
+                .estado(domain.getEstado())
+                .propietario(domain.getPropietario())
+                .contactoEmail(domain.getContactoEmail())
+                .paisOrigen(domain.getPaisOrigen())
+                .totalCookies(domain.getCookies() == null || domain.getCookies().isEmpty() ? ZERO_COOKIES :
+                        domain.getCookies().size())
+                .lastCookieScan(domain.getLastCookieScan() != null ? domain.getLastCookieScan().format(getFormatter()) : null)
+                .fechaCreacion(domain.getFechaCreacion().format(getFormatter()))
+                .fechaModificacion(domain.getFechaModificacion().format(getFormatter()))
+                .build();
+    }
+
+    public static Domain toEntity(DomainRequest request) {
+        return Domain
+                .builder()
+                .nombre(request.getNombre())
+                .descripcion(request.getDescripcion())
+                .estado(request.getEstado())
+                .propietario(request.getPropietario())
+                .contactoEmail(request.getContactoEmail())
+                .paisOrigen(request.getPaisOrigen())
+                .fechaCreacion(LocalDateTime.now())
+                .fechaModificacion(LocalDateTime.now())
                 .build();
     }
 

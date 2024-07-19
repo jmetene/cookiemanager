@@ -10,6 +10,6 @@ import java.util.Optional;
 public interface CookieRepository extends JpaRepository<Cookie, Long> {
     @Query("SELECT cookie FROM Cookie cookie WHERE cookie.domain.id = ?1")
     Optional<List<Cookie>> findByDomain(Long domain);
-    @Query("SELECT cookie FROM Cookie cookie WHERE cookie.domain = ?1 and  cookie.name = ?2")
+    @Query("SELECT cookie FROM Cookie cookie WHERE cookie.domain.id = ?1 and  cookie.name = ?2")
     Optional<Cookie> findByDomainAndName(Long id, String cookieName);
 }

@@ -22,18 +22,27 @@ public class Domain implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    /// Nombre del dominio
-    private String name;
-    /// Almacena la fecha en la que se realizó el último escaneo de cookies (Carga de las cookies)
+    @Column(nullable = false , unique = true )
+    private String nombre;
+    private String descripcion;
+    /// ENUM: Activo, Inactivo
+    private String estado;
+    private String propietario;
+    private String contactoEmail;
+    private String paisOrigen;
     private LocalDateTime lastCookieScan;
+    private LocalDateTime fechaCreacion;
+    private LocalDateTime fechaModificacion;
+
     @JsonIgnore
     @OneToMany(mappedBy = "domain", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     /// Cookies asociadas al dominio
     private List<Cookie> cookies = new ArrayList<>();
+
     @JsonIgnore
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "banner_id", referencedColumnName = "id")
+    @JoinColumn(name = "banner_id")
     /// Banner asociado al dominio
     private CookieBanner banner;
 

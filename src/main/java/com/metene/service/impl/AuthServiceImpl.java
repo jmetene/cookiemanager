@@ -47,6 +47,7 @@ public class AuthServiceImpl implements AuthService {
                 .firstName(request.getFirstName())
                 .lastName(request.getLastName())
                 .company(request.getCompany())
+                .suscriptionPlan(request.getSuscriptionPlan())
                 .role(Role.USER)
                 .build();
 
