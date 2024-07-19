@@ -1,6 +1,5 @@
 package com.metene.controller;
 
-import com.metene.domain.entity.CookieStatistics;
 import com.metene.service.CookieService;
 import com.metene.service.dto.CookieRequest;
 import com.metene.service.dto.CookieResponse;

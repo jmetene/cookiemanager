@@ -16,7 +16,6 @@ import com.metene.service.mapper.CookieMapper;
 import com.metene.service.mapper.DomainMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
 import java.util.List;
