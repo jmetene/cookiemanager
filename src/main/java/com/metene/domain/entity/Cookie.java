@@ -35,7 +35,7 @@ public class Cookie implements Serializable {
     private boolean httpOnly;
     private boolean secure;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "domain_id", nullable = false)
     private Domain domain;
 

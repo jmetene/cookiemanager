@@ -1,5 +1,6 @@
 package com.metene.service;
 
+import com.metene.domain.entity.CookieBanner;
 import com.metene.service.dto.CookieBannerRequest;
 import com.metene.service.dto.CookieRequest;
 import com.metene.service.dto.DomainRequest;
@@ -16,4 +17,6 @@ public interface IDomainService {
     void addCookies(Long id, List<CookieRequest> cookies);
     void addBanner(Long id, CookieBannerRequest request);
     void addCookie(Long id, CookieRequest request);
+    void updateBanner(CookieBanner banner, CookieBannerRequest bannerRequest);
+    void deleteBanner(CookieBanner banner);
 }

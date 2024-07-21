@@ -1,6 +1,7 @@
 package com.metene.service.impl;
 
 import com.metene.domain.entity.Cookie;
+import com.metene.domain.entity.CookieBanner;
 import com.metene.domain.entity.Domain;
 import com.metene.domain.entity.User;
 import com.metene.domain.repository.DomainRepository;
@@ -97,11 +98,30 @@ public class DomainServiceImpl implements IDomainService {
 
     @Override
     public void addCookie(Long id, CookieRequest request) {
-        Domain domain = domainRepository.getReferenceById(id);
+        Domain domain = domainRepository.findById(id).orElseThrow();
 
         // Actualizamos la fecha de la última sincronización de cookies
         domain.setLastCookieScan(LocalDateTime.now());
         domain.addCookie(CookieMapper.toEntity(request));
+        domainRepository.save(domain);
+    }
+
+    @Override
+    public void updateBanner(CookieBanner banner, CookieBannerRequest bannerRequest) {
+        CookieBanner bannerToUpdate = CookieBannerMapper.toEntity(bannerRequest);
+
+        Domain domain = banner.getDomain();
+        domain.setBanner(bannerToUpdate);
+
+        domainRepository.save(domain);
+
+    }
+
+    @Override
+    public void deleteBanner(CookieBanner banner) {
+        Domain domain = banner.getDomain();
+        domain.setBanner(null);
+        
         domainRepository.save(domain);
     }
 }

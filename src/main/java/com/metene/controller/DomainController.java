@@ -100,7 +100,10 @@ public class DomainController {
 
         try {
             domainService.addCookies(id, cookies);
-        } catch (PersistenceException e) {
+        } catch (NoSuchElementException e) {
+            return ResponseEntity.notFound().build();
+        }
+        catch (PersistenceException e) {
             return  ResponseEntity.internalServerError().build();
         }
         return ResponseEntity.ok().build();
@@ -115,7 +118,10 @@ public class DomainController {
 
         try {
             domainService.addBanner(id, banner);
-        } catch (PersistenceException e) {
+        } catch (NoSuchElementException e) {
+            return ResponseEntity.notFound().build();
+        }
+        catch (PersistenceException e) {
             return  ResponseEntity.internalServerError().build();
         }
         return ResponseEntity.ok().build();

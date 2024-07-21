@@ -30,6 +30,7 @@ public class Domain implements Serializable {
     private String propietario;
     private String contactoEmail;
     private String paisOrigen;
+    /// Sincronización de cookies.
     private LocalDateTime lastCookieScan;
     private LocalDateTime fechaCreacion;
     private LocalDateTime fechaModificacion;

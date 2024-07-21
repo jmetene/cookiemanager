@@ -24,7 +24,9 @@ public class CookieBanner implements Serializable {
     private String title;
     @Column(length = 1000)
     private String cookieDeclaration;
+    // Campo opcional
     private String companyLogo;
+    // GDPR
     private String legislation;
     private String legislationDesc;
     private String cookiePolicy;
@@ -33,6 +35,6 @@ public class CookieBanner implements Serializable {
     private ConsentType consentType;
     private String lang;
 
-    @OneToOne(mappedBy = "banner")
+    @OneToOne(mappedBy = "banner", fetch = FetchType.LAZY)
     private Domain domain;
 }
