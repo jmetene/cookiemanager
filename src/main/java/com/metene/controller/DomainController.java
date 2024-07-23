@@ -1,29 +1,31 @@
 package com.metene.controller;
 
 import com.metene.common.JWTUtils;
+import com.metene.service.CookieService;
+import com.metene.service.DomainStatisticsService;
 import com.metene.service.IDomainService;
-import com.metene.service.dto.CookieBannerRequest;
-import com.metene.service.dto.CookieRequest;
-import com.metene.service.dto.DomainRequest;
-import com.metene.service.dto.DomainResponse;
+import com.metene.service.dto.*;
+import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.PersistenceException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.WebRequest;
 
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Objects;
+import java.util.*;
 
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor
 public class DomainController {
-    private  final IDomainService domainService;
 
-    @GetMapping(value = "/domain")
+    private final IDomainService domainService;
+    private final CookieService cookieService;
+    private final DomainStatisticsService statisticsService;
+
+    @GetMapping(value = "/domains")
     @PreAuthorize("hasAuthority('USER')")
     public ResponseEntity<List<DomainResponse>> getDominio(WebRequest request) {
         List<DomainResponse> domains;
@@ -35,7 +37,7 @@ public class DomainController {
         return ResponseEntity.ok(domains);
     }
 
-    @GetMapping(value = "/domain/{id}")
+    @GetMapping(value = "/domains/{id}")
     @PreAuthorize("hasAuthority('USER')")
     public ResponseEntity<DomainResponse> getDetalles(@PathVariable Long id) {
         DomainResponse domain;
@@ -49,7 +51,7 @@ public class DomainController {
         return ResponseEntity.ok(domain);
     }
 
-    @PostMapping(value = "/domain")
+    @PostMapping(value = "/domains")
     @PreAuthorize("hasAuthority('USER')")
     public ResponseEntity<String> crearDominio(WebRequest request, @RequestBody DomainRequest domain) {
         if (Objects.isNull(domain) || domain.getNombre().isEmpty())
@@ -63,7 +65,7 @@ public class DomainController {
         return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping(value = "/domain/{id}")
+    @DeleteMapping(value = "/domains/{id}")
     @PreAuthorize("hasAuthority('USER')")
     public ResponseEntity<String> borrarDominio(@PathVariable Long id) {
 
@@ -77,7 +79,7 @@ public class DomainController {
         return ResponseEntity.ok().build();
     }
 
-    @PutMapping(value = "/domain/{id}")
+    @PutMapping(value = "/domains/{id}")
     @PreAuthorize("hasAuthority('USER')")
     public ResponseEntity<String> actualizarDominio(@PathVariable Long id, @RequestBody DomainRequest domain) {
         if (Objects.isNull(domain) || domain.getNombre().isEmpty())
@@ -91,7 +93,7 @@ public class DomainController {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping(value = "/domain/{id}/cookies")
+    @PostMapping(value = "/domains/{id}/cookies")
     @PreAuthorize("hasAuthority('USER')")
     public ResponseEntity<String> cargarCookies(@PathVariable Long id, @RequestBody List<CookieRequest> cookies) {
 
@@ -109,7 +111,39 @@ public class DomainController {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping(value = "/domain/{id}/banner")
+    @GetMapping(value = "/domains/{domainId}/cookies")
+    @PreAuthorize("hasAuthority('USER')")
+    public ResponseEntity<List<CookieResponse>> getCookiesByDomain(@PathVariable Long domainId) {
+        List<CookieResponse> cookies;
+        try {
+            cookies = cookieService.getAllCookies(domainId);
+        } catch (PersistenceException e) {
+            return  ResponseEntity.internalServerError().build();
+        }
+        return ResponseEntity.ok(cookies);
+    }
+
+    @PostMapping(value = "/domains/{id}/cookie")
+    @PreAuthorize("hasAuthority('USER')")
+    public ResponseEntity<String> cargarCookie(@PathVariable Long id, @RequestBody CookieRequest cookie) {
+
+        if (cookie == null)
+            return  ResponseEntity.badRequest().body("Error en la información introducida");
+
+        try {
+            domainService.addCookie(id, cookie);
+        } catch (EntityExistsException e) {
+            return new ResponseEntity<>("Ya existe la cookie", HttpStatus.CONFLICT);
+        } catch (NoSuchElementException e) {
+            return ResponseEntity.notFound().build();
+        }
+        catch (PersistenceException e) {
+            return  ResponseEntity.internalServerError().build();
+        }
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping(value = "/domains/{id}/banner")
     @PreAuthorize("hasAuthority('USER')")
     public ResponseEntity<String> createCookieBanner(@PathVariable Long id, @RequestBody CookieBannerRequest banner) {
 
@@ -125,5 +159,25 @@ public class DomainController {
             return  ResponseEntity.internalServerError().build();
         }
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping(value = "/domains/{domainId}/cookies/{cookieId}/statistics")
+    public ResponseEntity<List<StatisticResponse>> getStatistics(WebRequest request,
+                                                                 @PathVariable Long domainId,
+                                                                 @PathVariable Long cookieId) {
+
+        if (!JWTUtils.getParametrosNoValidos(request).isEmpty())
+            return ResponseEntity.badRequest().build();
+
+        List<StatisticResponse> respone;
+        try {
+            respone = statisticsService
+                    .getCookieStatistics(domainId, cookieId, request.getParameterMap().entrySet().stream().toList());
+        } catch (NoSuchElementException e) {
+            return ResponseEntity.badRequest().build();
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
+        }
+        return ResponseEntity.ok(respone);
     }
 }

@@ -7,10 +7,13 @@ import com.metene.service.dto.Statistic;
 import java.util.List;
 
 public interface CookieService {
-    CookieResponse getCookie(Long domain, String name);
+    CookieResponse getCookie(Long cookieId);
+
     List<CookieResponse> getAllCookies(Long domain);
-    void delete(Long domain, String cookieName);
-    void update(Long domainId, String name,CookieRequest request);
-    void addCookie(Long domainId, CookieRequest request);
-    void cargarEstadisticas(Long domainId, String name, List<Statistic> statistics);
+
+    void delete(Long cookieId);
+
+    void update(Long cookieId, CookieRequest request);
+
+    void cargarEstadisticas(Long cookieId, List<Statistic> statistics);
 }

@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 
@@ -19,7 +20,7 @@ public class CookieStatistics implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String estado;
-    private LocalDateTime fecha;
+    private LocalDate fecha;
     private String plataforma;
     private String pais;
     @ManyToOne(fetch = FetchType.LAZY)

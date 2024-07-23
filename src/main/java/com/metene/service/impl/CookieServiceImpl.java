@@ -5,7 +5,6 @@ import com.metene.domain.entity.Domain;
 import com.metene.domain.repository.CookieRepository;
 import com.metene.domain.repository.DomainRepository;
 import com.metene.service.CookieService;
-import com.metene.service.IDomainService;
 import com.metene.service.dto.CookieRequest;
 import com.metene.service.dto.CookieResponse;
 import com.metene.service.dto.Statistic;
@@ -23,12 +22,11 @@ public class CookieServiceImpl implements CookieService {
 
     private final CookieRepository cookieRepository;
     private final DomainRepository domainRepository;
-    private final IDomainService domainService;
 
     @Override
-    public CookieResponse getCookie(Long id, String cookieName) {
+    public CookieResponse getCookie(Long id) {
 
-        Cookie cookie = cookieRepository.findByDomainAndName(id, cookieName).orElseThrow();
+        Cookie cookie = cookieRepository.findById(id).orElseThrow();
 
         return CookieMapper.toDto(cookie);
     }
@@ -40,8 +38,8 @@ public class CookieServiceImpl implements CookieService {
     }
 
     @Override
-    public void delete(Long domain, String cookieName) {
-        Cookie cookie = cookieRepository.findByDomainAndName(domain, cookieName).orElseThrow();
+    public void delete(Long cookieId) {
+        Cookie cookie = cookieRepository.findById(cookieId).orElseThrow();
         Domain domainToUpdate = cookie.getDomain();
 
         domainToUpdate.removeCookie(cookie);
@@ -49,8 +47,8 @@ public class CookieServiceImpl implements CookieService {
     }
 
     @Override
-    public void update(Long domainId, String name, CookieRequest request) {
-        Cookie currentCookie = cookieRepository.findByDomainAndName(domainId, name).orElseThrow();
+    public void update(Long cookieId, CookieRequest request) {
+        Cookie currentCookie = cookieRepository.findById(cookieId).orElseThrow();
 
         Cookie cookieToUpdate = CookieMapper.toEntity(request);
         cookieToUpdate.setDomain(currentCookie.getDomain());
@@ -60,16 +58,12 @@ public class CookieServiceImpl implements CookieService {
     }
 
     @Override
-    public void addCookie(Long domainId, CookieRequest request) {
-        domainService.addCookie(domainId, request);
-    }
-
-    @Override
-    public void cargarEstadisticas(Long domainId, String name, List<Statistic> statistics) {
-        Cookie currentCookie = cookieRepository.findByDomainAndName(domainId, name).orElseThrow();
+    public void cargarEstadisticas(Long cookieId, List<Statistic> statistics) {
+        Cookie currentCookie = cookieRepository.findById(cookieId).orElseThrow();
+        Domain domain = currentCookie.getDomain();
 
         currentCookie.addStatistics(CookieStatisticMapper.toEntityList(statistics));
-
-        cookieRepository.save(currentCookie);
+        domain.addCookie(currentCookie);
+        domainRepository.save(domain);
     }
 }

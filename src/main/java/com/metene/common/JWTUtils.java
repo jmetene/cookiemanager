@@ -4,8 +4,12 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.util.StringUtils;
 import org.springframework.web.context.request.WebRequest;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class JWTUtils {
 
+    private static final List<String> PARAMETROS = List.of("fechaInicio", "fechaFin", "estado", "pais", "plataforma");
     private JWTUtils() {
         throw new IllegalStateException("Utility class");
     }
@@ -21,5 +25,17 @@ public class JWTUtils {
         }
         // If the Authorization header is not valid, return null
         return null;
+    }
+
+    public static List<String> getParametrosNoValidos(WebRequest request) {
+
+        List<String> parametrosNoValidos = new ArrayList<>();
+
+        request.getParameterMap().keySet().forEach(parametro -> {
+            if (!PARAMETROS.contains(parametro))
+                parametrosNoValidos.add(parametro);
+
+        });
+        return parametrosNoValidos;
     }
 }

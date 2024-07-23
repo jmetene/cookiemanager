@@ -4,6 +4,7 @@ import com.metene.domain.entity.Cookie;
 import com.metene.domain.entity.CookieBanner;
 import com.metene.domain.entity.Domain;
 import com.metene.domain.entity.User;
+import com.metene.domain.repository.CookieRepository;
 import com.metene.domain.repository.DomainRepository;
 import com.metene.domain.repository.UserRepository;
 import com.metene.service.IDomainService;
@@ -15,20 +16,24 @@ import com.metene.service.dto.DomainResponse;
 import com.metene.service.mapper.CookieBannerMapper;
 import com.metene.service.mapper.CookieMapper;
 import com.metene.service.mapper.DomainMapper;
+import jakarta.persistence.EntityExistsException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class DomainServiceImpl implements IDomainService {
 
     private static final String ACTIVO = "Activo";
+
     private final UserRepository userRepository;
     private final DomainRepository domainRepository;
     private final JWTService jwtService;
+    private final CookieRepository cookieRepository;
 
     @Override
     public void create(DomainRequest request, String token) {
@@ -80,7 +85,7 @@ public class DomainServiceImpl implements IDomainService {
         // Solo se pueden añadir las cookies si el dominio está activo
         if (!domain.getEstado().equals(ACTIVO)) return;
 
-        List<Cookie> cookiesToSave =  cookies.stream().map(CookieMapper::toEntity).toList();
+        List<Cookie> cookiesToSave = cookies.stream().map(CookieMapper::toEntity).toList();
 
         // Actualizamos la fecha de sincronización de las cookies
         domain.setLastCookieScan(LocalDateTime.now());
@@ -100,28 +105,22 @@ public class DomainServiceImpl implements IDomainService {
     public void addCookie(Long id, CookieRequest request) {
         Domain domain = domainRepository.findById(id).orElseThrow();
 
+        Optional<Cookie> cookie = cookieRepository.findByNameAndProvider(request.getName(), request.getProvider());
+
+        if (cookie.isPresent()) throw new EntityExistsException();
+
         // Actualizamos la fecha de la última sincronización de cookies
         domain.setLastCookieScan(LocalDateTime.now());
         domain.addCookie(CookieMapper.toEntity(request));
-        domainRepository.save(domain);
-    }
-
-    @Override
-    public void updateBanner(CookieBanner banner, CookieBannerRequest bannerRequest) {
-        CookieBanner bannerToUpdate = CookieBannerMapper.toEntity(bannerRequest);
-
-        Domain domain = banner.getDomain();
-        domain.setBanner(bannerToUpdate);
 
         domainRepository.save(domain);
-
     }
 
     @Override
     public void deleteBanner(CookieBanner banner) {
         Domain domain = banner.getDomain();
         domain.setBanner(null);
-        
+
         domainRepository.save(domain);
     }
 }

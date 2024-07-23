@@ -18,7 +18,7 @@ public class CookieBannerController {
 
     private final ICookieBannerService bannerService;
 
-    @GetMapping(value = "/banner/{id}")
+    @GetMapping(value = "/banners/{id}")
     @PreAuthorize("hasAuthority('USER')")
     public ResponseEntity<CookieBannerResponse> getBanner(@PathVariable Long id) {
         CookieBannerResponse banner;

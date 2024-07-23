@@ -33,8 +33,10 @@ public class CookieBannerServiceImpl implements ICookieBannerService {
 
     @Override
     public void updateCookieBanner(Long id, CookieBannerRequest bannerRequest) {
-        CookieBanner bannerToUpdate = repository.findById(id).orElseThrow();
+        CookieBanner banner = repository.findById(id).orElseThrow();
+        CookieBanner bannerToUpdate = CookieBannerMapper.toEntity(bannerRequest);
 
-        domainService.updateBanner(bannerToUpdate, bannerRequest);
+        bannerToUpdate.setId(banner.getId());
+        repository.save(bannerToUpdate);
     }
 }

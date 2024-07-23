@@ -4,7 +4,6 @@ import com.metene.service.CookieService;
 import com.metene.service.dto.CookieRequest;
 import com.metene.service.dto.CookieResponse;
 import com.metene.service.dto.Statistic;
-import jakarta.persistence.PersistenceException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -19,24 +18,12 @@ import java.util.NoSuchElementException;
 public class CookieController {
     private final CookieService cookieService;
 
-    @GetMapping(value = "/cookie/{domainId}")
+    @GetMapping(value = "/cookies/{cookieId}")
     @PreAuthorize("hasAuthority('USER')")
-    public ResponseEntity<List<CookieResponse>> getCookiesByDomain(@PathVariable Long domainId) {
-        List<CookieResponse> cookies;
-        try {
-            cookies = cookieService.getAllCookies(domainId);
-        } catch (PersistenceException e) {
-            return  ResponseEntity.internalServerError().build();
-        }
-        return ResponseEntity.ok(cookies);
-    }
-
-    @GetMapping(value = "/cookie/{domainId}/{name}")
-    @PreAuthorize("hasAuthority('USER')")
-    public ResponseEntity<CookieResponse> showCookieDetails(@PathVariable Long domainId, @PathVariable String name) {
+    public ResponseEntity<CookieResponse> showCookieDetails(@PathVariable Long cookieId) {
         CookieResponse cookie;
         try {
-            cookie = cookieService.getCookie(domainId, name);
+            cookie = cookieService.getCookie(cookieId);
         } catch (NoSuchElementException e) {
             return  ResponseEntity.notFound().build();
         } catch (Exception e) {
@@ -45,13 +32,11 @@ public class CookieController {
         return ResponseEntity.ok(cookie);
     }
 
-    @PostMapping(value = "/cookie/{domainId}/{name}/estatistics")
+    @PutMapping(value = "/cookies/{cookieId}/estatistics")
     @PreAuthorize("hasAuthority('USER')")
-    public ResponseEntity<String> cargarEstadisticas(@PathVariable Long domainId,
-                                                             @PathVariable String name,
-                                                             @RequestBody List<Statistic> statistics) {
+    public ResponseEntity<String> cargarEstadisticas(@PathVariable Long cookieId, @RequestBody List<Statistic> statistics) {
         try {
-            cookieService.cargarEstadisticas(domainId, name, statistics);
+            cookieService.cargarEstadisticas(cookieId, statistics);
         } catch (NoSuchElementException e) {
             return  ResponseEntity.notFound().build();
         } catch (Exception e) {
@@ -60,11 +45,11 @@ public class CookieController {
         return ResponseEntity.ok().build();
     }
 
-    @PutMapping(value = "/cookie/{domainId}/{name}")
+    @PutMapping(value = "/cookies/{cookieId}")
     @PreAuthorize("hasAuthority('USER')")
-    public ResponseEntity<String> actualizarCookie(@PathVariable Long domainId, @PathVariable String name, @RequestBody CookieRequest request) {
+    public ResponseEntity<String> actualizarCookie(@PathVariable Long cookieId, @RequestBody CookieRequest request) {
         try {
-            cookieService.update(domainId, name,request);
+            cookieService.update(cookieId,request);
         } catch (NoSuchElementException e) {
             return  ResponseEntity.notFound().build();
         } catch (Exception e) {
@@ -73,24 +58,11 @@ public class CookieController {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping(value = "/cookie/{domainId}")
+    @DeleteMapping(value = "/cookies/{cookieId}")
     @PreAuthorize("hasAuthority('USER')")
-    public ResponseEntity<String> addCookie(@PathVariable Long domainId, @RequestBody CookieRequest request) {
+    public ResponseEntity<String> eliminarCookie(@PathVariable Long cookieId) {
         try {
-            cookieService.addCookie(domainId, request);
-        } catch (NoSuchElementException e) {
-            return  ResponseEntity.notFound().build();
-        } catch (Exception e) {
-            return  ResponseEntity.internalServerError().build();
-        }
-        return ResponseEntity.ok().build();
-    }
-
-    @DeleteMapping(value = "/cookie/{domainId}/{name}")
-    @PreAuthorize("hasAuthority('USER')")
-    public ResponseEntity<String> eliminarCookie(@PathVariable Long domainId, @PathVariable String name) {
-        try {
-           cookieService.delete(domainId, name);
+           cookieService.delete(cookieId);
         } catch (NoSuchElementException e) {
             return  ResponseEntity.notFound().build();
         } catch (Exception e) {
