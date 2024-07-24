@@ -1,12 +1,15 @@
 package com.metene.service.impl;
 
 import com.metene.common.Constantes;
+import com.metene.domain.entity.Cookie;
 import com.metene.domain.entity.CookieStatistics;
+import com.metene.domain.repository.CookieRepository;
 import com.metene.domain.repository.CookieStatisticsRepository;
 import com.metene.service.DomainStatisticsService;
 import com.metene.service.dto.StatisticResponse;
 import com.metene.service.mapper.CookieStatisticMapper;
-import com.metene.service.utiles.StatisticsUtils;
+import com.metene.service.utiles.DomainStatisticsUtils;
+import com.metene.service.utiles.CookieStatisticsUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -18,6 +21,7 @@ import java.util.*;
 public class DomainStatisticsServiceImpl implements DomainStatisticsService {
 
     private final CookieStatisticsRepository statisticsRepository;
+    private final CookieRepository cookieRepository;
 
     @Override
     public List<StatisticResponse> getCookieStatistics(Long domainId, Long cookieId, List<Map.Entry<String, String[]>> parametros) {
@@ -38,23 +42,23 @@ public class DomainStatisticsServiceImpl implements DomainStatisticsService {
         // Usamos un switch para manejar los diferentes tamaños de parámetros
         switch (parametros.size()) {
             case Constantes.ONE:
-                statisticResponse = StatisticsUtils.getCookieStatisticsByOneParameter(domainId, cookieId,
+                statisticResponse = CookieStatisticsUtils.getCookieStatisticsByOneParameter(domainId, cookieId,
                         parametros.get(0), statisticsRepository);
                 break;
             case Constantes.TWO:
-                statisticResponse = StatisticsUtils.getCookieStatisticsByTwoParameters(domainId, cookieId, parametros,
+                statisticResponse = CookieStatisticsUtils.getCookieStatisticsByTwoParameters(domainId, cookieId, parametros,
                         statisticsRepository);
                 break;
             case Constantes.THREE:
-                statisticResponse = StatisticsUtils.getCookieStatisticsThreeParameters(domainId, cookieId, parametros,
+                statisticResponse = CookieStatisticsUtils.getCookieStatisticsThreeParameters(domainId, cookieId, parametros,
                         statisticsRepository);
                 break;
             case Constantes.FOUR:
-                statisticResponse = StatisticsUtils.getCookieStatisticsByFourParameters(domainId, cookieId, parametros,
+                statisticResponse = CookieStatisticsUtils.getCookieStatisticsByFourParameters(domainId, cookieId, parametros,
                         statisticsRepository);
                 break;
             case Constantes.FIVE:
-                statisticResponse = StatisticsUtils.getCookieStatisticsByAllfilters(domainId, cookieId, parametros,
+                statisticResponse = CookieStatisticsUtils.getCookieStatisticsByAllfilters(domainId, cookieId, parametros,
                         statisticsRepository);
                 break;
             default:
@@ -62,5 +66,18 @@ public class DomainStatisticsServiceImpl implements DomainStatisticsService {
                 break;
         }
         return statisticResponse;
+    }
+
+    @Override
+    public List<StatisticResponse> getStatisticsByDomain(Long domainId, List<Map.Entry<String, String[]>> parametros) {
+        // Recuperamos todas las cookies asociadas al dominio
+        List<Cookie> cookies = cookieRepository.findByDomain(domainId).orElseThrow();
+
+        final List<CookieStatistics> statistics = new ArrayList<>();
+
+        // Obtenemos todas las estadísitcas de las cookies del dominio
+        cookies.forEach(cookie -> statistics.addAll(cookie.getStatisticsList()));
+
+        return DomainStatisticsUtils.getDomainStatistics(statistics, parametros);
     }
 }

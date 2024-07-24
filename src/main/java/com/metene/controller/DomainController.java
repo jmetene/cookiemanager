@@ -180,4 +180,21 @@ public class DomainController {
         }
         return ResponseEntity.ok(respone);
     }
+
+    @GetMapping(value = "/domains/{domainId}/statistics")
+    public ResponseEntity<List<StatisticResponse>> getStatisticsByDomain(WebRequest request, @PathVariable Long domainId) {
+
+        if (!JWTUtils.getParametrosNoValidos(request).isEmpty())
+            return ResponseEntity.badRequest().build();
+
+        List<StatisticResponse> respone;
+        try {
+            respone = statisticsService.getStatisticsByDomain(domainId, request.getParameterMap().entrySet().stream().toList());
+        } catch (NoSuchElementException e) {
+            return ResponseEntity.badRequest().build();
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
+        }
+        return ResponseEntity.ok(respone);
+    }
 }
