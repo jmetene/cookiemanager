@@ -154,10 +154,6 @@ public class CookieStatisticsUtils {
                 .findStatisticsByPlataformaAndPaisAndEstado(domainId, cookieId, plataforma, estado, pais)
                 .orElseThrow());
 
-        queryMap.put("estado_pais_plataforma", () -> repository
-                .findStatisticsByPlataformaAndPaisAndEstado(domainId, cookieId, plataforma, estado, pais)
-                .orElseThrow());
-
         // Construimos la clave para el mapa de consultas
         String key = builtKeyForQuery(estado, pais, plataforma, fechaInicio, fechaFin);
 

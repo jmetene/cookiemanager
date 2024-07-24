@@ -42,7 +42,7 @@ public class DomainStatisticsUtils {
         // Extraemos los parámetros de la consulta en un mapa
         Map<String, String> mapOfQueryParams = extractQueryParams(parametros);
 
-        // Obtenemos los valores de los parámetros con valores por defecto null
+        // Rellenamos el mapa con valores por defecto a null
         String pais = mapOfQueryParams.getOrDefault(Constantes.COUNTRY, null);
         String estado = mapOfQueryParams.getOrDefault(Constantes.STATUS, null);
         String fechaFin = mapOfQueryParams.getOrDefault(Constantes.END_DATE, null);
@@ -56,27 +56,78 @@ public class DomainStatisticsUtils {
         queryMap.put("fechaInicio", () -> statistics.stream()
                 .filter(estadistica -> estadistica.getFecha().isEqual(LocalDate.parse(fechaInicio))).toList());
 
-        queryMap.put("estado", () -> statistics.stream().filter(estadistica -> estadistica.getEstado().equals(estado))
-                .toList());
+        queryMap.put("estado", () -> statistics.stream()
+                .filter(estadistica -> estadistica.getEstado().equalsIgnoreCase(estado)).toList());
 
-        queryMap.put("pais", () -> statistics.stream().filter(estadistica -> estadistica.getPais().equals(pais))
-                .toList());
+        queryMap.put("pais", () -> statistics.stream()
+                .filter(estadistica -> estadistica.getPais().equalsIgnoreCase(pais)).toList());
+
         queryMap.put("plataforma", () -> statistics.stream()
-                .filter(estadistica -> estadistica.getPlataforma().equals(plataforma)).toList());
+                .filter(estadistica -> estadistica.getPlataforma().equalsIgnoreCase(plataforma)).toList());
 
         // Construimos la clave para el mapa de consultas
         String key = builtKeyForQuery(estado, pais, plataforma, fechaInicio, fechaFin);
 
-        // Devolvemos vacío si no existe la key
-        if (!queryMap.containsKey(key)) return List.of();
-
-        // Ejecutamos la consulta correspondiente si existe y
-        // Convertimos la lista de estadísticas a DTO
-        return CookieStatisticMapper.toDTOList(queryMap.get(key).get());
+        // Ejecutamos la consulta correspondiente si existe la key
+        return queryMap.containsKey(key) ? CookieStatisticMapper.toDTOList(queryMap.get(key).get()) : List.of();
     }
 
     private static List<StatisticResponse> getDomainStatisticsWithTwoParameters(List<CookieStatistics> statistics,
-                                                                              List<Map.Entry<String, String[]>> parametros) {
+                                                                                List<Map.Entry<String, String[]>> parametros) {
+
+        Map<String, String> mapOfQueryParams = extractQueryParams(parametros);
+
+        String pais = mapOfQueryParams.getOrDefault(Constantes.COUNTRY, null);
+        String estado = mapOfQueryParams.getOrDefault(Constantes.STATUS, null);
+        String fechaFin = mapOfQueryParams.getOrDefault(Constantes.END_DATE, null);
+        String plataforma = mapOfQueryParams.getOrDefault(Constantes.PLATFORM, null);
+        String fechaInicio = mapOfQueryParams.getOrDefault(Constantes.START_DATE, null);
+
+        Map<String, Supplier<List<CookieStatistics>>> queryMap = new HashMap<>();
+
+        queryMap.put("fechaInicio_fechaFin", () -> statistics.stream()
+                .filter(estadistica -> !estadistica.getFecha().isBefore(LocalDate.parse(fechaInicio))
+                        && !estadistica.getFecha().isAfter(LocalDate.parse(fechaFin)))
+                .toList());
+
+        queryMap.put("fechaInicio_estado", () -> statistics.stream()
+                .filter(estadistica -> estadistica.getEstado().equalsIgnoreCase(estado)
+                        && estadistica.getFecha().isEqual(LocalDate.parse(fechaInicio)))
+                .toList());
+
+        queryMap.put("fechaInicio_plataforma", () -> statistics.stream()
+                .filter(estadistica -> estadistica.getPlataforma().equalsIgnoreCase(plataforma))
+                .filter(estadistica -> estadistica.getFecha().isEqual(LocalDate.parse(fechaInicio)))
+                .toList());
+
+        queryMap.put("fechaInicio_pais", () -> statistics.stream()
+                .filter(estadistica -> estadistica.getPais().equalsIgnoreCase(pais))
+                .filter(estadistica -> estadistica.getFecha().isEqual(LocalDate.parse(fechaInicio)))
+                .toList());
+
+        queryMap.put("estado_pais", () -> statistics.stream()
+                .filter(estadistica -> estadistica.getPais().equalsIgnoreCase(pais))
+                .filter(estadistica -> estadistica.getEstado().equalsIgnoreCase(estado))
+                .toList());
+
+        queryMap.put("estado_plataforma", () -> statistics.stream()
+                .filter(estadistica -> estadistica.getPlataforma().equalsIgnoreCase(plataforma))
+                .filter(estadistica -> estadistica.getEstado().equalsIgnoreCase(estado))
+                .toList());
+
+        queryMap.put("pais_plataforma", () -> statistics.stream()
+                .filter(estadistica -> estadistica.getPlataforma().equalsIgnoreCase(plataforma))
+                .filter(estadistica -> estadistica.getPais().equalsIgnoreCase(pais))
+                .toList());
+
+        String key = builtKeyForQuery(estado, pais, plataforma, fechaInicio, fechaFin);
+
+        return queryMap.containsKey(key) ? CookieStatisticMapper.toDTOList(queryMap.get(key).get()) : List.of();
+    }
+
+    private static List<StatisticResponse> getDomainStatisticsWithThreeParameters(List<CookieStatistics> statistics,
+                                                                                  List<Map.Entry<String, String[]>> parametros) {
+
         // Extraemos los parámetros de la consulta en un mapa
         Map<String, String> mapOfQueryParams = extractQueryParams(parametros);
 
@@ -87,72 +138,122 @@ public class DomainStatisticsUtils {
         String plataforma = mapOfQueryParams.getOrDefault(Constantes.PLATFORM, null);
         String fechaInicio = mapOfQueryParams.getOrDefault(Constantes.START_DATE, null);
 
-        // Mapa para almacenar las consultas correspondientes a cada combinación de parámetros
         Map<String, Supplier<List<CookieStatistics>>> queryMap = new HashMap<>();
 
-        // Definimos las consultas y las almacenamos en el mapa
-        queryMap.put("fechaInicio_fechaFin", () -> statistics.stream()
-                .filter(estadistica -> estadistica.getFecha().isEqual(LocalDate.parse(fechaInicio)))
-//                .filter(estadistica -> estadistica.getFecha().getLong(LocalDate))
+        queryMap.put("fechaInicio_fechaFin_estado", () -> statistics.stream()
+                .filter(estadistica -> !estadistica.getFecha().isBefore(LocalDate.parse(fechaInicio))
+                        && !estadistica.getFecha().isAfter(LocalDate.parse(fechaFin)))
+                .filter(estadistica -> estadistica.getEstado().equalsIgnoreCase(estado))
                 .toList());
 
-        queryMap.put("fechaInicio_estado", () -> statistics.stream()
-                .filter(estadistica -> estadistica.getEstado().equals(estado))
-                .filter(estadistica -> estadistica.getFecha().isEqual(LocalDate.parse(fechaInicio)))
+        queryMap.put("fechaInicio_fechaFin_plataforma", () -> statistics.stream()
+                .filter(estadistica -> !estadistica.getFecha().isBefore(LocalDate.parse(fechaInicio))
+                        && !estadistica.getFecha().isAfter(LocalDate.parse(fechaFin)))
+                .filter(estadistica -> estadistica.getPlataforma().equalsIgnoreCase(plataforma))
                 .toList());
 
-        queryMap.put("fechaInicio_plataforma", () -> statistics.stream()
-                .filter(estadistica -> estadistica.getPlataforma().equals(plataforma))
-                .filter(estadistica -> estadistica.getFecha().isEqual(LocalDate.parse(fechaInicio)))
+        queryMap.put("fechaInicio_fechaFin_pais", () -> statistics.stream()
+                .filter(estadistica -> !estadistica.getFecha().isBefore(LocalDate.parse(fechaInicio))
+                        && !estadistica.getFecha().isAfter(LocalDate.parse(fechaFin)))
+                .filter(estadistica -> estadistica.getPais().equalsIgnoreCase(pais))
                 .toList());
 
-        queryMap.put("fechaInicio_pais", () -> statistics.stream()
-                .filter(estadistica -> estadistica.getPais().equals(pais))
-                .filter(estadistica -> estadistica.getFecha().isEqual(LocalDate.parse(fechaInicio)))
+        queryMap.put("fechaInicio_plataforma_pais", () -> statistics.stream()
+                .filter(estadistica -> estadistica.getFecha().isEqual(LocalDate.parse(fechaInicio))
+                        && estadistica.getPais().equalsIgnoreCase(pais)
+                        && estadistica.getPlataforma().equalsIgnoreCase(plataforma))
                 .toList());
 
-        queryMap.put("estado_pais", () -> statistics.stream()
-                .filter(estadistica -> estadistica.getPais().equals(pais))
-                .filter(estadistica -> estadistica.getEstado().equals(estado))
+        queryMap.put("fechaInicio_estado_pais", () -> statistics.stream()
+                .filter(estadistica -> estadistica.getFecha().isEqual(LocalDate.parse(fechaInicio))
+                        && estadistica.getEstado().equalsIgnoreCase(estado)
+                        && estadistica.getPlataforma().equalsIgnoreCase(plataforma))
                 .toList());
 
-        queryMap.put("estado_plataforma", () -> statistics.stream()
-                .filter(estadistica -> estadistica.getPlataforma().equals(plataforma))
-                .filter(estadistica -> estadistica.getEstado().equals(estado))
+        queryMap.put("fechaInicio_estado_plataforma", () -> statistics.stream()
+                .filter(estadistica -> estadistica.getFecha().isEqual(LocalDate.parse(fechaInicio))
+                        && estadistica.getEstado().equalsIgnoreCase(estado)
+                        && estadistica.getPlataforma().equalsIgnoreCase(plataforma))
                 .toList());
 
-        queryMap.put("pais_plataforma", () -> statistics.stream()
-                .filter(estadistica -> estadistica.getPlataforma().equals(plataforma))
-                .filter(estadistica -> estadistica.getPais().equals(pais))
+        queryMap.put("estado_pais_plataforma", () -> statistics.stream()
+                .filter(estadistica -> estadistica.getPlataforma().equalsIgnoreCase(plataforma)
+                        && estadistica.getEstado().equalsIgnoreCase(estado)
+                        && estadistica.getPais().equalsIgnoreCase(pais))
                 .toList());
 
-        // Construimos la clave para el mapa de consultas
         String key = builtKeyForQuery(estado, pais, plataforma, fechaInicio, fechaFin);
 
-        // Devolvemos vacío si no existe la key
-        if (!queryMap.containsKey(key))
-            return List.of();
-
-        // Ejecutamos la consulta correspondiente si existe y
-        // Convertimos la lista de estadísticas a DTO
-        return CookieStatisticMapper.toDTOList(queryMap.get(key).get());
-    }
-
-    private static List<StatisticResponse> getDomainStatisticsWithThreeParameters(List<CookieStatistics> statistics,
-                                                                                List<Map.Entry<String, String[]>> parametros) {
-
-        return List.of();
+        return queryMap.containsKey(key) ? CookieStatisticMapper.toDTOList(queryMap.get(key).get()) : List.of();
     }
 
     private static List<StatisticResponse> getDomainStatisticsWithFourParameters(List<CookieStatistics> statistics,
-                                                                               List<Map.Entry<String, String[]>> parametros) {
+                                                                                 List<Map.Entry<String, String[]>> entries) {
 
-        return List.of();
+        // Extraemos los parámetros de la consulta en un mapa
+        Map<String, String> mapOfQueryParams = extractQueryParams(entries);
+
+        // Obtenemos los valores de los parámetros con valores por defecto null
+        String pais = mapOfQueryParams.get(Constantes.COUNTRY);
+        String estado = mapOfQueryParams.get(Constantes.STATUS);
+        String fechaFin = mapOfQueryParams.get(Constantes.END_DATE);
+        String plataforma = mapOfQueryParams.get(Constantes.PLATFORM);
+        String fechaInicio = mapOfQueryParams.get(Constantes.START_DATE);
+
+        Map<String, Supplier<List<CookieStatistics>>> queryMap = new HashMap<>();
+
+        queryMap.put("fechaInicio_fechaFin_estado_plataforma", () -> statistics.stream()
+                .filter(estadistica -> !estadistica.getFecha().isBefore(LocalDate.parse(fechaInicio))
+                        && !estadistica.getFecha().isAfter(LocalDate.parse(fechaFin)))
+                .filter(estadistica -> estadistica.getEstado().equalsIgnoreCase(estado))
+                .filter(estadistica -> estadistica.getPlataforma().equalsIgnoreCase(plataforma))
+                .toList());
+
+        queryMap.put("fechaInicio_fechaFin_estado_pais", () -> statistics.stream()
+                .filter(estadistica -> !estadistica.getFecha().isBefore(LocalDate.parse(fechaInicio))
+                        && !estadistica.getFecha().isAfter(LocalDate.parse(fechaFin)))
+                .filter(estadistica -> estadistica.getEstado().equalsIgnoreCase(estado))
+                .filter(estadistica -> estadistica.getPais().equalsIgnoreCase(pais))
+                .toList());
+
+        queryMap.put("fechaInicio_fechaFin_pais_plataforma", () -> statistics.stream()
+                .filter(estadistica -> estadistica.getPais().equalsIgnoreCase(pais))
+                .filter(estadistica -> estadistica.getPlataforma().equalsIgnoreCase(plataforma))
+                .filter(estadistica -> !estadistica.getFecha().isBefore(LocalDate.parse(fechaInicio))
+                        && !estadistica.getFecha().isAfter(LocalDate.parse(fechaFin)))
+                .toList());
+
+        queryMap.put("fechaInicio_estado_pais_plataforma", () -> statistics.stream()
+                .filter(estadistica -> estadistica.getPais().equalsIgnoreCase(pais))
+                .filter(estadistica -> estadistica.getEstado().equalsIgnoreCase(estado))
+                .filter(estadistica -> estadistica.getPlataforma().equalsIgnoreCase(plataforma))
+                .filter(estadistica -> estadistica.getFecha().isEqual(LocalDate.parse(fechaInicio)))
+                .toList());
+
+        String key = builtKeyForQuery(estado, pais, plataforma, fechaInicio, fechaFin);
+
+        return queryMap.containsKey(key) ? CookieStatisticMapper.toDTOList(queryMap.get(key).get()) : List.of();
     }
 
     private static List<StatisticResponse> getDomainStatisticsWithFiveParameters(List<CookieStatistics> statistics,
-                                                                               List<Map.Entry<String, String[]>> parametros) {
+                                                                                 List<Map.Entry<String, String[]>> entries) {
 
-        return List.of();
+        // Extraemos los parámetros de la consulta en un mapa
+        Map<String, String> mapOfQueryParams = extractQueryParams(entries);
+
+        // Obtenemos los valores de los parámetros con valores por defecto null
+        String pais = mapOfQueryParams.get(Constantes.COUNTRY);
+        String estado = mapOfQueryParams.get(Constantes.STATUS);
+        String fechaFin = mapOfQueryParams.get(Constantes.END_DATE);
+        String plataforma = mapOfQueryParams.get(Constantes.PLATFORM);
+        String fechaInicio = mapOfQueryParams.get(Constantes.START_DATE);
+
+        return CookieStatisticMapper.toDTOList(statistics.stream()
+                .filter(estadistica -> estadistica.getPais().equalsIgnoreCase(pais))
+                .filter(estadistica -> estadistica.getPlataforma().equalsIgnoreCase(plataforma))
+                .filter(estadistica -> estadistica.getEstado().equalsIgnoreCase(estado))
+                .filter(estadistica -> !estadistica.getFecha().isBefore(LocalDate.parse(fechaInicio)) &&
+                        !estadistica.getFecha().isAfter(LocalDate.parse(fechaFin)))
+                .toList());
     }
 }
