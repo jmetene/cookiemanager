@@ -38,4 +38,11 @@ public class JWTUtils {
         });
         return parametrosNoValidos;
     }
+
+    public static boolean isNoValidSuscriptionName(String name) {
+        return !name.equalsIgnoreCase(Constantes.STARTER)
+                && !name.equalsIgnoreCase(Constantes.BASIC)
+                && !name.equalsIgnoreCase(Constantes.BUSINESS)
+                && !name.equalsIgnoreCase(Constantes.ENTREPRISE);
+    }
 }

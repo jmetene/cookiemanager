@@ -17,4 +17,10 @@ public class Constantes {
     public static final int THREE = 3;
     public static final int FOUR = 4;
     public static final int FIVE = 5;
+
+    // PLANES
+    public static final String STARTER = "Starter";
+    public static final String BASIC = "Basic";
+    public static final String BUSINESS = "Business";
+    public static final String ENTREPRISE = "Enterprise";
 }

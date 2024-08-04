@@ -48,4 +48,19 @@ public class UserController {
 
         return ResponseEntity.ok("Usuario actualizado correctamente");
     }
+
+    @PostMapping("/users/subscriptions/{planeName}")
+    @PreAuthorize("hasAuthority('USER')")
+    public ResponseEntity<String> changeSuscriptionPlan(WebRequest request, @PathVariable String planeName) {
+        if (JWTUtils.isNoValidSuscriptionName(planeName))
+            return ResponseEntity.badRequest().build();
+
+        try {
+            userService.changeSuscriptionPlan(planeName.toLowerCase(), JWTUtils.extractTokenFromRequest(request));
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
+        }
+
+        return ResponseEntity.ok("OK");
+    }
 }

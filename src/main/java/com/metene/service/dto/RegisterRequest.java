@@ -24,6 +24,6 @@ public class RegisterRequest {
     private String email;
     @NotBlank(message = "company cannot be an empty value or null")
     private String company;
-    @NotBlank(message = "Suscription plan cannot be empty or null")
+    @NotBlank(message = "Subscription plan cannot be empty or null")
     private String suscriptionPlan;
 }

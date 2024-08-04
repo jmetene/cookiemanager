@@ -31,6 +31,14 @@ public class UserServiceImpl implements UserService {
         return UserMapper.toDTO(userRepository.findByUsername(getUserName(token)).orElseThrow());
     }
 
+    @Override
+    public void changeSuscriptionPlan(String planeName, String userToken) {
+        User user = userRepository.findByUsername(getUserName(userToken)).orElseThrow();
+
+        user.setSuscriptionPlan(planeName);
+        userRepository.save(user);
+    }
+
     private String getUserName(String token) {
         return jwtService.getUsernameFromToken(token);
     }
