@@ -1,7 +1,7 @@
 package com.metene.confing;
 
-import com.metene.service.JWTService;
-import com.metene.service.TokenBlackList;
+import com.metene.auth.JWTService;
+import com.metene.auth.TokenBlackList;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import jakarta.annotation.Nonnull;
@@ -36,7 +36,7 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(@Nonnull HttpServletRequest request, @Nonnull HttpServletResponse response,
                                     @Nonnull FilterChain filterChain) throws ServletException, IOException, ExpiredJwtException {
 
-        final String username;
+        final String email;
         String token = getTokenFromRequest(request);
 
         if (token == null) {
@@ -50,12 +50,12 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
         try {
-            username = jwtService.getUsernameFromToken(token);
+            email = jwtService.getUserFromToken(token);
 
             // Si el usuario no se encuentra en el SecurityContexHolder
-            if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+            if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 // Lo recuperamos de la BD
-                UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+                UserDetails userDetails = userDetailsService.loadUserByUsername(email);
                 if (jwtService.isTokenValid(token ,userDetails)) {
                     // Actualizamos el SecurityContextHolder
                     UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
