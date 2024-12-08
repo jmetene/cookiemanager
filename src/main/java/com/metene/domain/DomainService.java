@@ -2,6 +2,7 @@ package com.metene.domain;
 
 import com.metene.auth.JWTService;
 import com.metene.cookie.Cookie;
+import com.metene.cookie.dto.CookieResponse;
 import com.metene.cookiebanner.CookieBanner;
 import com.metene.domain.dto.DomainMapper;
 import com.metene.domain.dto.DomainRequest;
@@ -14,6 +15,7 @@ import com.metene.cookie.dto.CookieRequest;
 import com.metene.cookiebanner.dto.CookieBannerMapper;
 import com.metene.cookie.dto.CookieMapper;
 import jakarta.persistence.EntityExistsException;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -32,11 +34,21 @@ public class DomainService {
     private final JWTService jwtService;
     private final CookieRepository cookieRepository;
 
-    public void create(DomainRequest request, String token) {
-        User user = userRepository.findByUsername(jwtService.getUserFromToken(token)).orElseThrow();
+    public DomainResponse create(DomainRequest request, String token) {
 
-        user.addDomain(DomainMapper.toEntity(request));
-        userRepository.save(user);
+        User user = userRepository.findByEmail(jwtService.getUserFromToken(token)).orElseThrow();
+
+        Domain domainToSave;
+        Domain response;
+        try {
+            domainToSave = DomainMapper.toEntity(request);
+            domainToSave.setUser(user);
+            response = domainRepository.saveAndFlush(domainToSave);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+        return DomainMapper.toDto(response);
     }
 
     public DomainResponse getDetails(Long id) {
@@ -46,7 +58,7 @@ public class DomainService {
     }
 
     public List<DomainResponse> getAll(String token) {
-        User user = userRepository.findByUsername(jwtService.getUserFromToken(token)).orElseThrow();
+        User user = userRepository.findByEmail(jwtService.getUserFromToken(token)).orElseThrow();
 
         return domainRepository.findByUserName(user.getUsername()).stream().map(DomainMapper::toDto).toList();
     }
@@ -59,15 +71,16 @@ public class DomainService {
         userRepository.save(user);
     }
 
-    public void update(Long id, DomainRequest data) {
-        Domain currentDomain = domainRepository.findById(id).orElseThrow();
+    public DomainResponse update(Long id, DomainRequest data) {
+        Domain currentDomain = domainRepository.findById(id)
+                .orElseThrow(() -> new EntityExistsException("Ya existe un dominio con este identificador"));
 
         Domain domainToUpdate = DomainMapper.toEntity(data);
         domainToUpdate.setFechaCreacion(currentDomain.getFechaCreacion());
         domainToUpdate.setId(currentDomain.getId());
         domainToUpdate.setUser(currentDomain.getUser());
 
-        domainRepository.save(domainToUpdate);
+        return DomainMapper.toDto(domainRepository.saveAndFlush(domainToUpdate));
     }
 
     public void addCookies(Long id, List<CookieRequest> cookies) {
@@ -91,8 +104,9 @@ public class DomainService {
         domainRepository.save(domain);
     }
 
-    public void addCookie(Long id, CookieRequest request) {
-        Domain domain = domainRepository.findById(id).orElseThrow();
+    public CookieResponse addCookie(Long id, CookieRequest request) {
+        Domain domain = domainRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Dominio no encontrado"));
 
         Optional<Cookie> cookie = cookieRepository.findByNameAndProvider(request.getName(), request.getProvider());
 
@@ -100,9 +114,10 @@ public class DomainService {
 
         // Actualizamos la fecha de la última sincronización de cookies
         domain.setLastCookieScan(LocalDateTime.now());
-        domain.addCookie(CookieMapper.toEntity(request));
+        Cookie cookieToSave = CookieMapper.toEntity(request);
 
-        domainRepository.save(domain);
+        cookieToSave.setDomain(domain);
+        return CookieMapper.toDto(cookieRepository.saveAndFlush(cookieToSave));
     }
 
     public void deleteBanner(CookieBanner banner) {

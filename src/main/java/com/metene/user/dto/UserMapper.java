@@ -10,6 +10,7 @@ public class UserMapper {
     public static UserResponse toDTO(User user) {
         return UserResponse
                 .builder()
+                .role(user.getRole().name().toLowerCase())
                 .name(user.getName())
                 .email(user.getEmail())
                 .firstName(user.getFirstName())
@@ -28,7 +29,7 @@ public class UserMapper {
                 .email(dto.getEmail())
                 .firstName(dto.getFirstName())
                 .lastName(dto.getLastName())
-                .username(dto.getUsername())
+//                .username(dto.getUsername())
                 .company(dto.getCompany())
                 .suscriptionPlan(dto.getSuscriptionPlan())
                 .build();

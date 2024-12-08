@@ -26,6 +26,7 @@ public class CookieMapper {
     public static CookieResponse toDto(Cookie cookie) {
         return CookieResponse
                 .builder()
+                .id(cookie.getId())
                 .name(cookie.getName())
                 .description(cookie.getDescription())
                 .provider(cookie.getProvider())

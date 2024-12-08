@@ -28,6 +28,7 @@ public class DomainController {
     private final CookieService cookieService;
     private final DomainStatisticsService statisticsService;
 
+    @CrossOrigin
     @GetMapping(value = "/domains")
     @PreAuthorize("hasAuthority('USER')")
     public ResponseEntity<List<DomainResponse>> getDominio(WebRequest request) {
@@ -40,6 +41,7 @@ public class DomainController {
         return ResponseEntity.ok(domains);
     }
 
+    @CrossOrigin
     @GetMapping(value = "/domains/{id}")
     @PreAuthorize("hasAuthority('USER')")
     public ResponseEntity<DomainResponse> getDetalles(@PathVariable Long id) {
@@ -54,20 +56,23 @@ public class DomainController {
         return ResponseEntity.ok(domain);
     }
 
+    @CrossOrigin
     @PostMapping(value = "/domains")
     @PreAuthorize("hasAuthority('USER')")
-    public ResponseEntity<String> crearDominio(WebRequest request, @RequestBody DomainRequest domain) {
+    public ResponseEntity<DomainResponse> crearDominio(WebRequest request, @RequestBody DomainRequest domain) {
         if (Objects.isNull(domain) || domain.getNombre().isEmpty())
-            return  ResponseEntity.badRequest().body("Error en los parámetros de entrada");
+            return  ResponseEntity.badRequest().body(null);
 
+        DomainResponse response;
         try {
-            domainService.create(domain, RequestUtils.extractTokenFromRequest(request));
+            response =  domainService.create(domain, RequestUtils.extractTokenFromRequest(request));
         } catch (PersistenceException e) {
             return  ResponseEntity.internalServerError().build();
         }
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(response);
     }
 
+    @CrossOrigin
     @DeleteMapping(value = "/domains/{id}")
     @PreAuthorize("hasAuthority('USER')")
     public ResponseEntity<String> borrarDominio(@PathVariable Long id) {
@@ -82,20 +87,23 @@ public class DomainController {
         return ResponseEntity.ok().build();
     }
 
+    @CrossOrigin
     @PutMapping(value = "/domains/{id}")
     @PreAuthorize("hasAuthority('USER')")
-    public ResponseEntity<String> actualizarDominio(@PathVariable Long id, @RequestBody DomainRequest domain) {
+    public ResponseEntity<DomainResponse> actualizarDominio(@PathVariable Long id, @RequestBody DomainRequest domain) {
         if (Objects.isNull(domain) || domain.getNombre().isEmpty())
-            return  ResponseEntity.badRequest().body("El los parámetros de entrada");
+            return  ResponseEntity.badRequest().build();
 
+        DomainResponse response;
         try {
-            domainService.update(id, domain);
+             response = domainService.update(id, domain);
         } catch (PersistenceException e) {
             return  ResponseEntity.internalServerError().build();
         }
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(response);
     }
 
+    @CrossOrigin
     @PostMapping(value = "/domains/{id}/cookies")
     @PreAuthorize("hasAuthority('USER')")
     public ResponseEntity<String> cargarCookies(@PathVariable Long id, @RequestBody List<CookieRequest> cookies) {
@@ -114,6 +122,7 @@ public class DomainController {
         return ResponseEntity.ok().build();
     }
 
+    @CrossOrigin
     @GetMapping(value = "/domains/{domainId}/cookies")
     @PreAuthorize("hasAuthority('USER')")
     public ResponseEntity<List<CookieResponse>> getCookiesByDomain(@PathVariable Long domainId) {
@@ -126,26 +135,29 @@ public class DomainController {
         return ResponseEntity.ok(cookies);
     }
 
+    @CrossOrigin
     @PostMapping(value = "/domains/{id}/cookie")
     @PreAuthorize("hasAuthority('USER')")
-    public ResponseEntity<String> cargarCookie(@PathVariable Long id, @RequestBody CookieRequest cookie) {
+    public ResponseEntity<CookieResponse> saveCookie(@PathVariable Long id, @RequestBody CookieRequest cookie) {
 
         if (cookie == null)
-            return  ResponseEntity.badRequest().body("Error en la información introducida");
+            return  ResponseEntity.badRequest().build();
 
+        CookieResponse response;
         try {
-            domainService.addCookie(id, cookie);
+            response = domainService.addCookie(id, cookie);
         } catch (EntityExistsException e) {
-            return new ResponseEntity<>("Ya existe la cookie", HttpStatus.CONFLICT);
+            return new ResponseEntity<>(HttpStatus.CONFLICT);
         } catch (NoSuchElementException e) {
             return ResponseEntity.notFound().build();
         }
         catch (PersistenceException e) {
             return  ResponseEntity.internalServerError().build();
         }
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(response);
     }
 
+    @CrossOrigin
     @PostMapping(value = "/domains/{id}/banner")
     @PreAuthorize("hasAuthority('USER')")
     public ResponseEntity<String> createCookieBanner(@PathVariable Long id, @RequestBody CookieBannerRequest banner) {
@@ -164,6 +176,7 @@ public class DomainController {
         return ResponseEntity.ok().build();
     }
 
+    @CrossOrigin
     @GetMapping(value = "/domains/{domainId}/cookies/{cookieId}/statistics")
     public ResponseEntity<List<StatisticResponse>> getStatistics(WebRequest request,
                                                                  @PathVariable Long domainId,
@@ -184,6 +197,7 @@ public class DomainController {
         return ResponseEntity.ok(respone);
     }
 
+    @CrossOrigin
     @GetMapping(value = "/domains/{domainId}/statistics")
     public ResponseEntity<List<StatisticResponse>> getStatisticsByDomain(WebRequest request, @PathVariable Long domainId) {
 

@@ -19,7 +19,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "USER", uniqueConstraints = {@UniqueConstraint(columnNames = {"username", "email"})})
+@Table(name = "USER", uniqueConstraints = {@UniqueConstraint(columnNames = { "email"})})
 public class User implements UserDetails, Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
@@ -28,7 +28,7 @@ public class User implements UserDetails, Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     private String name;
-    private String username;
+//    private String username;
     private String password;
     private String firstName;
     private String lastName;
@@ -57,5 +57,10 @@ public class User implements UserDetails, Serializable {
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority(role.name()));
+    }
+
+    @Override
+    public String getUsername() {
+        return getEmail();
     }
 }

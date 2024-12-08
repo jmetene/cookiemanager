@@ -56,7 +56,7 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
             if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 // Lo recuperamos de la BD
                 UserDetails userDetails = userDetailsService.loadUserByUsername(email);
-                if (jwtService.isTokenValid(token ,userDetails)) {
+                if (jwtService.isTokenValid(token, userDetails)) {
                     // Actualizamos el SecurityContextHolder
                     UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                             userDetails,

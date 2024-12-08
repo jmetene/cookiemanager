@@ -11,13 +11,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class RegisterRequest {
-    @NotBlank(message = "username cannot be an empty or null")
-    private String username;
+//    @NotBlank(message = "username cannot be an empty or null")
+//    private String username;
     @NotBlank(message = "username cannot be an empty or null")
     private String name;
-    @NotBlank(message = "firstname cannot be an empty value or null")
-    private String firstName;
-    private String lastName;
+    private String surnames;
     @NotBlank(message = "password cannot be an empty value or null")
     private String password;
     @Email(message = "Email must be a valid email")

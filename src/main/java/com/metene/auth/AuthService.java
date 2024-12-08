@@ -36,13 +36,23 @@ public class AuthService {
         if (emailExists(request.getEmail())) {
             throw new EntityExistsException("Email already exists");
         }
+        String lastName;
+        String firstName = null;
+
+        if (request.getSurnames().contains(" ")) {
+            firstName = request.getSurnames().substring(0, request.getSurnames().indexOf(" "));
+            lastName = request.getSurnames().substring(request.getSurnames().lastIndexOf(" ") + 1);
+        } else  {
+            lastName = request.getSurnames();
+        }
+
         User user = User.builder()
-                .username(request.getUsername())
+//                .username(request.getName())
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .name(request.getName())
-                .firstName(request.getFirstName())
-                .lastName(request.getLastName())
+                .firstName(firstName)
+                .lastName(lastName)
                 .company(request.getCompany())
                 .suscriptionPlan(request.getSuscriptionPlan())
                 .role(Role.USER)
@@ -72,7 +82,8 @@ public class AuthService {
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         String token = jwtService.generateToken(userDetails);
-        return AuthResponse.builder().token(token).build();
+        UserResponse userResponse = UserMapper.toDTO(userDetails);
+        return AuthResponse.builder().user(userResponse).token(token).build();
     }
 
     public String logout(String token) {
@@ -94,5 +105,31 @@ public class AuthService {
 
     private boolean emailExists(String email) {
         return userRepository.findByEmail(email).isPresent();
+    }
+
+    /**
+     * Método para renovar el token del usuario.
+     * @param userToken token del usuario a renovar
+     * @return {@link AuthResponse}
+     */
+    public AuthResponse renewUserToken(String userToken) {
+        AuthResponse response;
+        String email = jwtService.getUserFromToken(userToken);
+
+        // Buscamos el usuario por su nombre
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("Usuario no encontrado"));
+        UserResponse userResponse = UserMapper.toDTO(user);
+        // Probamos si el token está caducado
+        if (!jwtService.isTokenValid(userToken, user )) {
+            // Si lo está, lo renovamos
+            String token = jwtService.generateToken(user);
+            response = AuthResponse.builder().user(userResponse).token(token).build();
+        } else {
+            // Devolvemos el token actual
+            response = AuthResponse.builder().user(userResponse).token(userToken).build();
+        }
+
+        return response;
     }
 }

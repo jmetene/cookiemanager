@@ -16,7 +16,7 @@ public class UserService {
     private static final String USER_NOT_FOUND_MESSAGE = "User not found";
 
     public void updateUser(UserRequest userRequest, String token) {
-        User user = userRepository.findByUsername(jwtService.getUserFromToken(token))
+        User user = userRepository.findByEmail(jwtService.getUserFromToken(token))
                 .orElseThrow(() -> new UserNotFoundException(USER_NOT_FOUND_MESSAGE));
 
         Integer id = user.getId();
@@ -26,12 +26,12 @@ public class UserService {
     }
 
     public UserResponse getUser(String token) {
-        return UserMapper.toDTO(userRepository.findByUsername(jwtService.getUserFromToken(token))
+        return UserMapper.toDTO(userRepository.findByEmail(jwtService.getUserFromToken(token))
                 .orElseThrow(() -> new UserNotFoundException(USER_NOT_FOUND_MESSAGE)));
     }
 
     public void changeSuscriptionPlan(String planeName, String userToken) {
-        User user = userRepository.findByUsername(jwtService.getUserFromToken(userToken))
+        User user = userRepository.findByEmail(jwtService.getUserFromToken(userToken))
                 .orElseThrow(() -> new UserNotFoundException(USER_NOT_FOUND_MESSAGE));
 
         user.setSuscriptionPlan(planeName);

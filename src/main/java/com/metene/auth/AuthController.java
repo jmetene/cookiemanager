@@ -49,6 +49,7 @@ public class AuthController {
                     {@Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema =
                     @Schema(implementation = HttpErrorResponse.class))})
     })
+    @CrossOrigin
     @PostMapping(value = "/login")
     public ResponseEntity<Object> login(@RequestBody LoginRequest request) {
         Set<ConstraintViolation<Object>> violations = validator.validate(request);
@@ -66,6 +67,21 @@ public class AuthController {
         return ResponseEntity.ok(response);
     }
 
+    @CrossOrigin
+    @GetMapping(value = "/refreshToken")
+    public ResponseEntity<Object> renewToken(WebRequest request) {
+        String userToken = RequestUtils.extractTokenFromRequest(request);
+
+        AuthResponse response;
+        try {
+            response = authService.renewUserToken(userToken);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body(builder.buildInternalServerError(INTERNAL_SERVER_ERROR));
+        }
+
+        return ResponseEntity.ok(response);
+    }
+
     @Operation(summary = "This method is for registration")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK"),
@@ -79,6 +95,7 @@ public class AuthController {
                     {@Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema =
                     @Schema(implementation = HttpErrorResponse.class))})
     })
+    @CrossOrigin
     @PostMapping(value = "/register")
     public ResponseEntity<Object> register(@RequestBody RegisterRequest request) {
         Set<ConstraintViolation<Object>> violations = validator.validate(request);
@@ -108,6 +125,8 @@ public class AuthController {
                     {@Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema =
                     @Schema(implementation = HttpErrorResponse.class))})
     })
+
+    @CrossOrigin
     @GetMapping(value = "/logout")
     public ResponseEntity<String> logout(WebRequest request) {
         return ResponseEntity.ok(authService.logout(RequestUtils.extractTokenFromRequest(request)));
