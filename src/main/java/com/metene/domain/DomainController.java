@@ -1,5 +1,6 @@
 package com.metene.domain;
 
+import com.metene.cookiebanner.dto.CookieBannerResponse;
 import com.metene.utiles.RequestUtils;
 import com.metene.cookie.dto.CookieRequest;
 import com.metene.cookie.CookieService;
@@ -31,7 +32,7 @@ public class DomainController {
     @CrossOrigin
     @GetMapping(value = "/domains")
     @PreAuthorize("hasAuthority('USER')")
-    public ResponseEntity<List<DomainResponse>> getDominio(WebRequest request) {
+    public ResponseEntity<List<DomainResponse>> getDominios(WebRequest request) {
         List<DomainResponse> domains;
         try {
             domains = domainService.getAll(RequestUtils.extractTokenFromRequest(request));
@@ -174,6 +175,20 @@ public class DomainController {
             return  ResponseEntity.internalServerError().build();
         }
         return ResponseEntity.ok().build();
+    }
+
+    @CrossOrigin
+    @GetMapping(value = "/domains/{id}/banner")
+    @PreAuthorize("hasAuthority('USER')")
+    public ResponseEntity<CookieBannerResponse> getCookieBanner(@PathVariable Long id) {
+        CookieBannerResponse response;
+        try {
+            response = domainService.getBanner(id);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
+        }
+
+        return ResponseEntity.ok(response);
     }
 
     @CrossOrigin

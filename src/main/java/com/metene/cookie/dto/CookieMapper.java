@@ -13,11 +13,11 @@ public class CookieMapper {
         return Cookie
                 .builder()
                 .name(request.getName())
-                .type(COOKIEType.valueOf(request.getType()))
+                .type(COOKIEType.valueOf(request.getType().toUpperCase()))
                 .description(request.getDescription())
                 .provider(request.getProvider())
                 .duration(request.getDuration())
-                .sameSite(SameSiteType.valueOf(request.getSameSite()))
+                .sameSite(SameSiteType.valueOf(request.getSameSite().toUpperCase()))
                 .httpOnly(request.isHttpOnly())
                 .secure(request.isSecure())
                 .build();

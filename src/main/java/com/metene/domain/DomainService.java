@@ -4,6 +4,7 @@ import com.metene.auth.JWTService;
 import com.metene.cookie.Cookie;
 import com.metene.cookie.dto.CookieResponse;
 import com.metene.cookiebanner.CookieBanner;
+import com.metene.cookiebanner.dto.CookieBannerResponse;
 import com.metene.domain.dto.DomainMapper;
 import com.metene.domain.dto.DomainRequest;
 import com.metene.domain.dto.DomainResponse;
@@ -125,5 +126,19 @@ public class DomainService {
         domain.setBanner(null);
 
         domainRepository.save(domain);
+    }
+
+    /**
+     * Devuelve la información del banner a partir del identificador del dominio
+     * @param id identificador del dominio
+     * @return {@return  CookieBannerResponse}
+     */
+    public CookieBannerResponse getBanner(Long id) {
+        Domain existingDomain = domainRepository.findById(id).orElseThrow(() ->
+                new EntityNotFoundException("No existe un dominio con este ID"));
+
+        CookieBanner banner = existingDomain.getBanner();
+
+        return banner != null ? CookieBannerMapper.toDto(banner) : null;
     }
 }
