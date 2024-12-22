@@ -1,6 +1,7 @@
 package com.metene.statistics;
 
 import com.metene.cookie.Cookie;
+import com.metene.domain.Domain;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -26,4 +27,8 @@ public class CookieStatistics implements Serializable {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "cookie_id", nullable = false)
     private Cookie cookie;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "domain_id", nullable = false)
+    private Domain domain;
 }

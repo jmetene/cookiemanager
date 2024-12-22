@@ -10,7 +10,7 @@ import java.util.List;
 
 public class RequestUtils {
 
-    private static final List<String> PARAMETROS = List.of("fechaInicio", "fechaFin", "estado", "pais", "plataforma");
+    private static final List<String> PARAMETROS = List.of("fechaDesde", "fechaHasta", "estado", "pais", "plataforma");
     private RequestUtils() {
         throw new IllegalStateException("Utility class");
     }
