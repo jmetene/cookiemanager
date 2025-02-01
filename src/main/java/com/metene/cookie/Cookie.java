@@ -46,10 +46,10 @@ public class Cookie implements Serializable {
     @Builder.Default
     private List<CookieStatistics> statisticsList = new ArrayList<>();
 
-    public void addStatistics(List<CookieStatistics> statistics) {
-        this.statisticsList.addAll(statistics);
-        statistics.forEach(cookieStatistics -> cookieStatistics.setCookie(this));
-    }
+//    public void addStatistics(List<CookieStatistics> statistics) {
+//        this.statisticsList.addAll(statistics);
+//        statistics.forEach(cookieStatistics -> cookieStatistics.setCookie(this));
+//    }
 
     public void removeStatistics(CookieStatistics statistic) {
         statisticsList.remove(statistic);

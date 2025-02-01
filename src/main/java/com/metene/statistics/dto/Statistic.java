@@ -14,4 +14,6 @@ public class Statistic {
     private String fecha;
     private String plataforma;
     private String pais;
+    private Long domainId;
+    private Long cookieId;
 }

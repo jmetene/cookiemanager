@@ -101,6 +101,9 @@ public class DomainService {
     public void addBanner(Long id, CookieBannerRequest request) {
         Domain domain = domainRepository.findById(id).orElseThrow();
 
+        // TODO: Antes de guardar el banner crear el script del banner
+//        ScriptBanner script = generarScript(codigoCss, codigoJs, dominio);
+
         domain.setBanner(CookieBannerMapper.toEntity(request));
         domainRepository.save(domain);
     }

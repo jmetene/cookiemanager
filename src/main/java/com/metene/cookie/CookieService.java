@@ -6,6 +6,7 @@ import com.metene.cookie.dto.CookieRequest;
 import com.metene.domain.Domain;
 import com.metene.domain.DomainRepository;
 import com.metene.cookie.dto.CookieResponse;
+import com.metene.statistics.CookieStatisticsRepository;
 import com.metene.statistics.dto.Statistic;
 import com.metene.statistics.dto.CookieStatisticMapper;
 import jakarta.persistence.EntityNotFoundException;
@@ -21,7 +22,8 @@ public class CookieService {
 
     private final CookieRepository cookieRepository;
     private final DomainRepository domainRepository;
-    private final JWTService jwtService;
+    private final CookieStatisticsRepository cookieStatisticsRepository;
+
     private static final String COOKIE_NOT_FOUND_MESSAGE = "Cookie not found";
 
     public CookieResponse getCookie(Long id) {
@@ -61,10 +63,13 @@ public class CookieService {
     public void cargarEstadisticas(Long cookieId, List<Statistic> statistics) {
         Cookie currentCookie = cookieRepository.findById(cookieId)
                 .orElseThrow(() -> new CookieNotFoundException(COOKIE_NOT_FOUND_MESSAGE));
-        Domain domain = currentCookie.getDomain();
 
-        currentCookie.addStatistics(CookieStatisticMapper.toEntityList(statistics));
-        domain.addCookie(currentCookie);
-        domainRepository.save(domain);
+        cookieStatisticsRepository.saveAllAndFlush(CookieStatisticMapper.toEntityList(statistics));
+
+//        Domain domain = currentCookie.getDomain();
+
+//        currentCookie.addStatistics(CookieStatisticMapper.toEntityList(statistics));
+//        domain.addCookie(currentCookie);
+//        domainRepository.save(domain);
     }
 }

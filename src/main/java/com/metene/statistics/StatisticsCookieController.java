@@ -1,5 +1,6 @@
 package com.metene.statistics;
 
+import com.metene.statistics.dto.Statistic;
 import com.metene.statistics.dto.StatisticRequest;
 import com.metene.statistics.dto.StatisticResponse;
 import com.metene.utiles.RequestUtils;
@@ -39,5 +40,25 @@ public class StatisticsCookieController {
             return ResponseEntity.internalServerError().build();
         }
         return ResponseEntity.ok(respone);
+    }
+
+    /**
+     * Carga las estadísitcas de una cookie
+     * @param statistics listado con las estadísiticas
+     * @return {@return ResponseEntity}
+     */
+    @CrossOrigin
+    @PostMapping(value = "/estadisticas")
+    @PreAuthorize("hasAuthority('USER')")
+    public ResponseEntity<String> cargarEstadisticas( @RequestBody List<Statistic> statistics) {
+        try {
+            if (statistics.isEmpty()) return ResponseEntity.badRequest().build();
+            statisticsCookieService.cargarEstadisticas(statistics);
+        } catch (NoSuchElementException e) {
+            return  ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            return  ResponseEntity.internalServerError().build();
+        }
+        return ResponseEntity.ok().build();
     }
 }

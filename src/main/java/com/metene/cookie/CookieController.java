@@ -35,7 +35,7 @@ public class CookieController {
     }
 
     @CrossOrigin
-    @PutMapping(value = "/{cookieId}/estatistics")
+    @PostMapping(value = "/{cookieId}/estatistics")
     @PreAuthorize("hasAuthority('USER')")
     public ResponseEntity<String> cargarEstadisticas(@PathVariable Long cookieId, @RequestBody List<Statistic> statistics) {
         try {
